@@ -1,3 +1,7 @@
+# no build dir
+/build
+
+# no auxilary files
 *.aux
 *.fdb_latexmk
 *.fls
