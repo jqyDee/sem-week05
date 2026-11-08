@@ -4,9 +4,28 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
+\usepackage{tikz-cd}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage[titletoc,title]{appendix}
 
-\title{VimTeX Test}
-\author{Test Author}
+\newcommand{\exercise}[1]{%
+  \phantomsection
+  \subsection*{Exercise #1}%
+  \addcontentsline{toc}{subsection}{Exercise #1}%
+  \label{ex:#1}%
+}
+\newcommand{\exref}[1]{\hyperref[ex:#1]{Exercise #1}}
+\newcommand{\discussion}[1]{%
+  \phantomsection
+  \subsection*{#1}%
+  \addcontentsline{toc}{subsection}{#1}%
+  \label{disc:#1}%
+}
+\newcommand{\discref}[2]{\hyperref[disc:#1]{#2}}
+
+\title{Chapter 05}
+\author{Report write-up Matti}
 \date{\today}
 
 \begin{document}
@@ -14,19 +33,473 @@
 \maketitle
 \tableofcontents
 
-\section{Subobjects}
+\section{Limits and Colimits}
 
-A subobject generalizeds the notion of a "subset" $U \subseteq X$ to any
+So far we have seen multiple construction with a universal mapping property
+(UMP). With them being defined differently, most of them still do look-alike
+very similar. In this chapter we are going to explain why that is, and we are
+going to combine them under one central notion, the \textbf{limit} of a
+diagram.
+
+Chapter 04 of the book proceeds in three stages, and it helps to keep the line
+of thought in mind:
+\begin{description}
+  \item[Two preparatory notions:] \textit{Subobjects} generalize subsets to
+    arbitrary categories. \textit{Pullbacks} generalize both intersections and
+    inverse images, and they let us transfer subobjects along arrows.
+  \item[The general theory:] We define diagrams, cones and limits, and prove
+    the main theorem: every limit can be built from products and equalizers. We
+    then ask which functors preserve the limits. Representable functors always
+    do.
+  \item[Colimits in practice:] We dualize, and study pushouts and colimits of
+    sequences. Sequences give direct limits of groups, the cumulative hierarchy
+    of set theory, and the least fixed points used in the semantics of
+    programming languages.
+\end{description}
+
+With this rough overview of the chapter established, we will start by
+introducing our preparatory notions:
+
+\subsection{Subobjects}
+
+A subobject generalizes the notion of a ''subset'' $U \subseteq X$ to any
 category, by replacing subset inclusion with a monomorphism $m: M
-\rightarrowtail X$.
+\rightarrowtail X$. As every subset also occurs as an equalizer, and all
+equalizers are monic, it is natural to regard monos as \textit{generalized
+subsets}: a mono in \textbf{Groups} can be regarded as a subgroup, a mono in
+\textbf{Top} as a subspace, and so on.
 
-\subsection{Definition Subobject}
+To visualize the subobject definition and properties further, let's establish
+an example for the remainder of the subobject section. Lets suppose $X$ is a
+set of four seats $\{a, b, c, d\}$. The subobject can here be thought of a way
+of seating a group of people, so that no two share a seat.
+
+\subsubsection{Definition Subobject}
 
 A subobject of $X$ in a category $\mathbf{C}$ is a monomorphism 
-$$m: M \rightarrowtail X.$$
-
+$$
+m: M \rightarrowtail X.
+$$
 The idea here is derived from the category of structured sets \textbf{G}, where
-given a monomorphism $m: \rightarrowtail X$, the image subset (often called
-"Gadgets") $\{m(y) | y \in M\} \subseteq X$, which we will rewrite as $m(M)$. This is 
+given a monomorphism $m: M \rightarrowtail X$ (in the book referred to as
+''gadgets''), then the image $m(M) = \{m(y) \mid y \in M\} \subseteq X$ is often a
+sub-gadget of $X$. To this sub-gadget, $M$ is isomorphic via $m$:
+$$
+m: M \overset{\sim}{\rightarrow} m(M) \subseteq X
+$$
 
-\end{document} 
+To clarify: $m$ carries the same information as the sub-gadget $m(M)$. To bring
+this thought even further, one can think of the mono $m$ itself as determining
+a ''part'' of $X$. This is now not bound to categories with functions as arrows
+anymore and this is why our definition derives from it.
+
+It is important to understand here, that $M$ in itself does not give any
+information about which part of $X$ it is the subobject of. This comes solely
+from the mono $m$. In our established example this would look something like
+this:
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw, inner sep=2pt, node distance=3mm}]
+  \node[draw=none] (M) {$M$};
+  \node[draw=none, right=1.5cm of M] (X1) {$X$};
+
+  \node[below=3mm of M] (1) {$1$};
+  \node[below=of 1]     (2) {$2$};
+
+  \node[below=1mm of X1] (a1) {$a$};
+  \node[below=of a1]     (b1) {$b$};
+  \node[below=of b1]     (c1) {$c$};
+  \node[below=of c1]     (d1) {$d$};
+
+  \draw[->] (1) -- (a1);
+  \draw[->] (2) -- (b1);
+
+  \begin{scope}[xshift=5.0cm]
+    \node[draw=none] (Mp) {$M'$};
+    \node[draw=none, right=1.5cm of Mp] (X2) {$X$};
+
+    \node[below=3mm of Mp] (x) {$x$};
+    \node[below=of x]      (y) {$y$};
+
+    \node[below=1mm of X2] (a2) {$a$};
+    \node[below=of a2]     (b2) {$b$};
+    \node[below=of b2]     (c2) {$c$};
+    \node[below=of c2]     (d2) {$d$};
+
+    \draw[->] (x) -- (b2);
+    \draw[->] (y) -- (a2);
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+Here both $M$ and $M'$ describe the same part of $X$, but coming from a two
+different objects. Without any additional information it is going to become
+difficult for us to compare these subobjects. We have passed from the preorder
+to the poset.
+
+\subsubsection{Category of subobjects}
+
+\[
+\begin{tikzcd}
+  A \ar[rr, "f", shift left] \ar[dr, "m"'] & & M' \ar[dl, "m'"] \\
+                                           & X &
+\end{tikzcd}
+\]
+
+Given subobjects $m, m'$ of $X$ and an arrow $f: m \rightarrow m'$ in the slice
+category $\mathbf{C} / X$, with $m' \circ f = m$. This gives the category
+$\text{Sub}_{\mathbf{C}}(X)$ of subobjects of $X$ in $\mathbf{C}$.
+
+This category is a preord: there is at most one $f$ as above, since $m'f = m =
+m \tilde{f}$ implies $f = \tilde{f}$ because $m'$ is monic. We therefore define
+the inclusion $m \subseteq m'$ to mean that such an $f$ exists.
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw, inner sep=2pt, node distance=4mm}]
+  \node[draw=none] at (0, 3.5) {$M$};
+  \node[draw=none] at (6, 3.5) {$M'$};
+  \node[draw=none] at (3.5, -0.5) {$X$};
+
+  \node (m1) at (0, 3) {$1$};
+  \node (m2) at (0, 2) {$2$};
+
+  \node (mp1) at (6, 3) {$x$};
+  \node (mp2) at (6, 2) {$y$};
+
+  \node (a) at (2, 0) {$a$};
+  \node (b) at (3, 0) {$b$};
+  \node (c) at (4, 0) {$c$};
+  \node (d) at (5, 0) {$d$};
+
+  \draw[<->, dashed] (m1) -- (mp2);
+  \draw[<->, dashed] (m2) -- (mp1);
+
+  \draw[->] (m1) -- (a);
+  \draw[->] (m2) -- (b);
+
+  % Right mappings
+  \draw[->] (mp1) -- (b);
+  \draw[->] (mp2) -- (a);
+\end{tikzpicture}
+\end{center}
+
+By looking at the above example we get an idea on how this might look on
+objects $M, M'$ being both subobjects of $X$. Also in the diagram above there
+exists $f: m \rightarrow m'$ and also an arrow $f': m' \rightarrow m$.
+Therefore $m \subseteq m'$ and $m' \subseteq m$, meaning they are isomorphic as
+subobject and we now can specify equivalence $m \equiv m'$ between subobjects
+as well. We can think of this as $m$ and $m'$ determining the same part.
+
+Bringing the idea of equivalent subobjects even further we can treat all
+equivalent monos as one thing. Under this definition a subobject is an
+equivalence class of monos under mutual inclusion.
+
+From now on, both notions will be used and it is made clear when monos or
+equivalence classes are intended.
+
+\subsubsection{Subobjects of subobjects}
+
+When $M' \subseteq M$ via a morphism $f$, then the arrow $f$ is itself a mono,
+so $M'$ is also a subobject of $M$. An example for this would be $4\mathbb{Z}
+\subseteq 2\mathbb{Z} \subseteq \mathbb{Z}$, where the set $4\mathbb{Z}$ is a
+part of $2\mathbb{Z}$ which is again a part of $\mathbb{Z}$.
+
+This shows that we have a functor $\text{Sub}(M) \rightarrow \text{Sub}(X)$
+defined by the composition with $f$.
+
+\subsubsection{Generalized elements}
+
+Let $z: Z \rightarrow X$ be a generalized element of an object $X$. We can
+define a \textit{local membership relation} $z \in_{X} M$ between such elements
+$z$ and subobjects $m: M \rightarrowtail X$ by $z \in_{X} M$ iff there exists
+$f: Z \rightarrow M$ such that $z = mf$.
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={circle, draw, inner sep=2pt}]
+  \node[draw=none] at (0, 3.5) {$Z$};
+  \node[draw=none] at (2, 3.5) {$X$};
+
+  \node (p1) at (0, 2.5) {$p$};
+  \node (q1) at (0, 1.5) {$q$};
+  \node (r1) at (0, 0.5) {$r$};
+
+  \node[thick] (a1) at (2, 3.0) {$a$};
+  \node[thick] (b1) at (2, 2.0) {$b$};
+  \node (c1) at (2, 1.0) {$c$};
+  \node (d1) at (2, 0.0) {$d$};
+
+  \draw[->] (p1) -- (a1);
+  \draw[->] (q1) -- (a1);
+  \draw[->] (r1) -- (b1);
+
+  \draw[thick] ([xshift=3mm]a1.north east) -- ([xshift=5mm]a1.north east) 
+            -- ([xshift=5mm]b1.south east) node[midway, right=2pt, draw=none] {$M$} 
+            -- ([xshift=3mm]b1.south east);
+
+  \begin{scope}[xshift=4.5cm]
+    \node[draw=none] at (0, 3.5) {$Z$};
+    \node[draw=none] at (2, 3.5) {$X$};
+
+    \node (p2) at (0, 2.5) {$p$};
+    \node (q2) at (0, 1.5) {$q$};
+    \node (r2) at (0, 0.5) {$r$};
+
+    \node[thick] (a2) at (2, 3.0) {$a$};
+    \node[thick] (b2) at (2, 2.0) {$b$};
+    \node (c2) at (2, 1.0) {$c$};
+    \node (d2) at (2, 0.0) {$d$};
+
+    \draw[->] (p2) -- (a2);
+    \draw[->] (q2) -- (b2);
+    \draw[->] (r2) -- (c2);
+
+    \draw[thick] ([xshift=3mm]a2.north east) -- ([xshift=5mm]a2.north east) 
+              -- ([xshift=5mm]b2.south east) node[midway, right=2pt, draw=none] {$M$} 
+              -- ([xshift=3mm]b2.south east);
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+We can think of $z$ like being a probe, where all elements of it need to land
+in $X$. In the above we can see that on the left all elements of $Z$ land in $M
+\subseteq X$ but on the right one of the elements lands outside, meaning for
+the left $x \in_{X} M$ and on the right $x \not\in_{X} M$. We do this so
+subobjects behave like subsets (\exref{5.4}.)
+
+\subsubsection{Equalizers as subobjects}
+
+\[
+\begin{tikzcd}
+  E \ar[r] & A \ar[r, "f", shift left] \ar[r, "g"', shift right] & B
+\end{tikzcd}
+\]
+
+We can now write equalizers as being a subobject of $A$ with property $z
+\in_{A} E$ iff $f(z) = g(z)$, which can be brought further by regarding $E$ as
+the subobject of generalized elements $z: Z \rightarrow A$ such that $f(z) =
+g(z)$:
+$$
+E = \{ z \in A \mid f(z) = g(z) \} \subseteq A.
+$$
+
+\subsection{Pullbacks}
+
+We can think of pullbacks as the collection of all pairs that agree on
+something. We are going to establish another example for this section to help
+you understand this better. Let $A$ be a set of students, $B$ be a set of
+restaurants, and $C$ be a set of cities. Each student lives in a city, and each
+restaurant is in a city. We can think of a pullback as every (student,
+restaurant) pair in the same city. To anyone familiar with SQL and relational
+algebra this will sound familiar, as it describes exactly an inner join on the
+city.
+
+\subsubsection{Definition of a pullback}
+
+\[
+\begin{tikzcd}
+  P \ar[d, "p_{1}"'] \ar[r, "p_{2}"] & B \ar[d, "g"] \\
+  A \ar[r, "f"'] & C
+\end{tikzcd}
+\]
+
+We start with two arrows $f: A \rightarrow C$ and $g: B \rightarrow C$ into the
+same object, which we call a corner. The pullback of $f$ and $g$ consists of
+arrows $p_{1}: P \rightarrow A$ and $p_{2}: P \rightarrow B$ with $fp_{1} =
+gp_{2}$, such that for any $z_{1}: Z \rightarrow A$ and $z_{2}: Z \rightarrow B$
+with $fz_{1} = gz_{2}$ there exists a unique $u: Z \rightarrow P$ with $z_{1} =
+p_{1}u$ and $z_{2} = p_{2}u$. Pullbacks are unique up to isomorphism, as they
+are given by a UMP.
+
+To bring this back to our example: for any pair in $P$, the student's city and
+the restaurant's city are the same.
+
+We can also describe this using product-style notation, writing $P = A \times_{C}
+B$. A generalized element $z$ of $A \times_{C} B$ is a pair $\langle z_{1}, z_{2}
+\rangle$ with $fz_{1} = gz_{2}$. This yields $A \times_{C} B = \{ \langle z_{1},
+z_{2} \rangle \in A \times B \mid fz_{1} = gz_{2} \}$, which as a subobject of
+$A \times B$ is the equalizer of $f \circ \pi_{1}$ and $g \circ \pi_{2}$.
+
+As Proposition 5.5 in the book already states, this is valid for all categories
+with products and equalizers. We can take a simple SQL statement to illustrate
+this:
+\begin{verbatim}
+SELECT *                     -- start from a product A x B
+FROM student s, restaurant r
+WHERE s.city = r.city        -- equalize f . pi_{1} and
+                             --          g . pi_{2}
+\end{verbatim}
+With our definition ($A$ being the students, $B$ being the restaurants) and $A
+\times B$ there are now 2 maps to $C$ (being the cities): $f \pi_{1}$ is the
+student's city, $g \pi_{2}$ is the restaurants city. The equalizer $e: E
+\rightarrowtail A \times B$ is the part where these 2 agree, which is the
+pullback. The pullbacks projections are $p_{1} = \pi_{1} e$ and $p_{2} =
+\pi_{2} e$.
+
+\subsubsection{Special cases}
+
+\paragraph{Products.} If $C = 1$ is terminal, then $fz_{1} = gz_{2}$ always
+holds, since there is only one arrow $Z \rightarrow 1$. The condition
+disappears, and the pullback is just the product: $A \times_{1} B \cong A \times
+B$.
+
+\paragraph{Inverse images.} Let $V \subseteq C$ be the cities with a
+university, with inclusion $i: V \rightarrowtail C$. Pulling back $i$ along $f$
+gives the square
+\[
+\begin{tikzcd}
+  f^{-1}(V) \ar[r, "\bar{f}"] \ar[d, tail, "j"'] & V \ar[d, tail, "i"] \\
+  A \ar[r, "f"'] & C
+\end{tikzcd}
+\]
+where $j$ is the inclusion and $\bar{f}$ is $f$ restricted to $f^{-1}(V)$. As
+the square commutes, every student in $f^{-1}(V)$ lives in a city of $V$. The
+UMP makes sure that every such student is included. Together this gives
+\[
+  f^{-1}(V) = \{ a \in A \mid f(a) \in V \}.
+\]
+This description only uses arrows, so we can use it in any category: the
+inverse image of a subobject $m: M \rightarrowtail C$ along $f$ is defined as
+its pullback. The pullback of a mono is again a mono (\exref{5.3}), so this
+is a subobject of $A$, and we get
+\[
+  f^{-1}: \text{Sub}(C) \rightarrow \text{Sub}(A).
+\]
+
+\paragraph{Intersections.} If both arrows are inclusions $U, V \subseteq X$,
+then a pair $(u, v)$ matches exactly when $u = v$, so the pullback is $U \cap
+V$.
+
+\subsubsection{Two-pullback lemma}
+
+\[
+\begin{tikzcd}
+  F \ar[r, "f'"] \ar[d, "h''"'] & E \ar[r, "g'"] \ar[d, "h'"] & D \ar[d, "h"] \\
+  A \ar[r, "f"'] & B \ar[r, "g"'] & C
+\end{tikzcd}
+\]
+We consider the commutative diagram above in a category with pullbacks. The
+lemma states that
+\begin{enumerate}
+  \item if the two squares ($E, B, C, D$ and $F, A, B, E$) are pullbacks, the
+    outer rectangle ($F, A, C, D$) is a pullback as well:
+    $$
+    A \times_{B} (B \times_{C} D) \cong A \times_{C} D
+    $$
+  \item if the right square, and the outer rectangle are pullbacks, the left
+    square is a pullback as well.
+\end{enumerate}
+
+Both proofs use one trick: an arrow into a pullback is determined by its two
+components, by the uniqueness in the UMP.
+
+\textit{Proof of 1.} Let $z_{1}: Z \rightarrow A$ and $z_{2}: Z \rightarrow D$
+with $gfz_{1} = hz_{2}$. We pass this through one square at a time. The pair
+$(fz_{1}, z_{2})$ fits the right square, so there is a unique $v: Z
+\rightarrow E$ with $h'v = fz_{1}$ and $g'v = z_{2}$. Now the pair $(z_{1}, v)$
+fits the left square, so there is a unique $u: Z \rightarrow F$ with $h''u =
+z_{1}$ and $f'u = v$, and thus $g'f'u = z_{2}$. For uniqueness, let $u'$ also
+satisfy $h''u' = z_{1}$ and $g'f'u' = z_{2}$. Then $h'f'u' = fh''u' = fz_{1}$,
+so $f'u'$ has the same components as $v$ and $f'u' = v$. Hence $u'$ has the
+same components as $u$, and $u' = u$.
+
+\textit{Proof of 2.} Let $z_{1}: Z \rightarrow A$ and $v: Z \rightarrow E$ with
+$fz_{1} = h'v$. Then $gfz_{1} = gh'v = hg'v$, so the outer rectangle gives a
+unique $u$ with $h''u = z_{1}$ and $g'f'u = g'v$. It remains to show $f'u = v$.
+Both are arrows into the right pullback, and they have the same components:
+$g'f'u = g'v$, and $h'f'u = fh''u = fz_{1} = h'v$. So $f'u = v$. For
+uniqueness, any $u'$ with $h''u' = z_{1}$ and $f'u' = v$ also satisfies $g'f'u'
+= g'v$, so $u' = u$ by the outer rectangle.
+
+We can apply our example to this again. $A$ is still the students, $B$ is
+cities, $C$ is countries, and $D$ is consulates, each in a country. In the
+right square $E$ pairs a city with a consulate in the same country. In the left
+square $F$ pairs a student with one of those (city, consulate) ''rows'',
+matching on the student's city. The outer rectangle then pairs a student with a
+consulate in the student's county.
+
+\subsubsection{Pullback is a functor}
+
+We start by fixing an arrow $h: C' \rightarrow C$ in a category $\mathbf{C}$.
+In the book, Proposition 5.10 says that pulling back along this arrow $h$ is a
+functor between slice categories, namely
+$$
+h^*: \mathbf{C}/C \rightarrow \mathbf{C}/C'
+$$
+defined by
+$$
+(A \overset{\alpha}{\rightarrow} C)
+  \mapsto (C' \times_{C} A \overset{\alpha'}{\rightarrow} C')
+$$
+
+TODO
+
+Also introducing that $f^{-1}$ is a piece of the functor $f^{*}$.
+
+Here the gap to prop logic should be bridged.
+
+As well as Reindexing shortly!
+
+\subsection{Limits}
+
+
+
+\begin{appendices}
+
+\section{Discussion}
+
+\discussion{Corollary 5.9}
+
+Let $\alpha = \beta\gamma$ be a commutative triangle over $C$, and let $h: C'
+\rightarrow C$. Pull back $\alpha$ and $\beta$ along $h$, giving $\alpha'$ and
+$\beta'$. Then there is a unique $\gamma'$ making the diagram below commute,
+and the upper square is again a pullback.
+\[
+\begin{tikzcd}
+  A' \ar[r, "h_{\alpha}"] \ar[d, dashed, "\gamma'"'] & A \ar[d, "\gamma"] \\
+  B' \ar[r, "h_{\beta}"] \ar[d, "\beta'"'] & B \ar[d, "\beta"] \\
+  C' \ar[r, "h"'] & C
+\end{tikzcd}
+\]
+
+\textit{Proof.} The pair $(\gamma h_{\alpha}, \alpha')$ fits the lower
+pullback, since $\beta\gamma h_{\alpha} = \alpha h_{\alpha} = h\alpha'$. So
+there is a unique $\gamma': A' \rightarrow B'$ with $h_{\beta}\gamma' = \gamma
+h_{\alpha}$ and $\beta'\gamma' = \alpha'$. Now the outer rectangle has sides
+$\beta\gamma = \alpha$ and $\beta'\gamma' = \alpha'$, so it is exactly the
+pullback of $\alpha$ along $h$. The lower square is a pullback as well. Turning
+the diagram by $90^{\circ}$, part 2 of the two-pullback lemma (with the lower
+square as the right one) shows that the upper square is a pullback.
+
+So pulling back along $h$ sends an arrow $\gamma: \alpha \rightarrow \beta$ of
+$\mathbf{C}/C$ to an arrow $\gamma': \alpha' \rightarrow \beta'$ of
+$\mathbf{C}/C'$. This is what makes pullback a functor (Proposition 5.10).
+
+\section{Exercises}
+
+\exercise{5.1}
+
+\exercise{5.2}
+
+\exercise{5.3}
+
+TODO (just sketch)
+
+Take $a, b: Z \rightarrow M'$ with $m'a = m'b$. Follow both around the square,
+and the mono $m$ cancels to give equal components into $M$. Now $a$ and $b$ are
+two factorizations of the same pair, so $a = b$ by uniqueness.
+
+\exercise{5.4}
+
+TODO (just sketch)
+
+This is the textbook definition of a subset, with ''element'' upgraded to
+''generalized element''. The proof has two short directions.
+
+\begin{itemize}
+  \item From left to right. If $m = nf$ and $z = mh$, then $z = n(fh)$. Anything landing in $M$ lands in $N$ too.
+  \item From right to left. Use the probe $z = m$ itself, which covers all of $M$. It is in $M$, so by assumption it is in $N$, and that says $m = nf$.
+\end{itemize}
+
+\end{appendices}
+
+\end{document}
