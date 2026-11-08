@@ -1,0 +1,634 @@
+%% Slides: Awodey, Category Theory, Chapter 5 (Limits and Colimits)
+%% Part I: theory overview (Matti), Part II: discussion (Dominic).
+%% The exercises (Matti) are presented by hand from a separate LaTeX file.
+\documentclass[11pt,t,usepdftitle=false,aspectratio=169]{beamer}
+
+%% nosectiontitlepage: \section only structures the deck (no title page each time).
+%% The theme's own `sectionintroframe` option needs a titlebackground.pdf that is
+%% not shipped, so the divider frame is defined below instead.
+\usetheme[nototalframenumber,foot,logo,nosectiontitlepage]{uibk}
+
+%% Divider frame before each part; it does not count towards the frame number
+\AtBeginSection[]{
+  {\setbeamertemplate{footline}{}
+  \begin{frame}[plain,c]
+    \vspace*{0pt plus 1fil}
+    \begin{center}
+      {\usebeamercolor[fg]{title}\fontsize{20}{24}\bfseries\selectfont
+        \insertsection\par}
+    \end{center}
+    \vspace*{0pt plus 1fil}
+  \end{frame}}
+  \addtocounter{framenumber}{-1}
+}
+
+\usepackage{amsmath}
+\usepackage{anyfontsize} % scales math fonts in frame titles, no size substitution
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tikz-cd}
+\usetikzlibrary{positioning}
+
+%% ------------------------------------------------------------------
+%% Color code, same as in the report and the explainer pages:
+%% f blue, g orange, mediating arrow u green
+\definecolor{uibkgreen}{RGB}{0,128,64}
+\definecolor{fblue}{RGB}{0,102,204}
+\newcommand{\cf}[1]{{\color{fblue}#1}}
+\newcommand{\cg}[1]{{\color{uibkorange}#1}}
+\newcommand{\cu}[1]{{\color{uibkgreen}#1}}
+\tikzcdset{
+  blue/.style={draw=fblue, text=fblue},
+  orange/.style={draw=uibkorange, text=uibkorange},
+  green/.style={draw=uibkgreen, text=uibkgreen},
+}
+
+%% Overlays inside TikZ: `visible on=<2->` hides an arrow until that slide
+\tikzset{
+  invisible/.style={opacity=0, text opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}},
+}
+
+%% Notation
+\newcommand{\C}{\ensuremath{\mathbf{C}}}
+\newcommand{\J}{\ensuremath{\mathbf{J}}}
+\newcommand{\Sets}{\ensuremath{\mathbf{Sets}}}
+\newcommand{\Sub}{\operatorname{Sub}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Cone}{\operatorname{Cone}}
+\newcommand{\cod}{\operatorname{cod}}
+\newcommand{\dom}{\operatorname{dom}}
+\newcommand{\colim}{\operatorname*{colim}}
+\newcommand{\mono}{\rightarrowtail}
+\newcommand{\epi}{\twoheadrightarrow}
+\newcommand{\inX}[1]{\mathrel{\in_{#1}}}
+\newcommand{\pair}[1]{\langle #1 \rangle}
+
+%% Small tag on theory slides pointing to the exercise that uses the result
+\newcommand{\extag}[1]{\hfill{\scriptsize\color{uibkorange}$\to$ Ex.~#1}}
+
+%% ------------------------------------------------------------------
+\title[Category Theory: Chapter 05]{Limits and Colimits}
+\subtitle{Category Theory by Steve Awodey: Chapter 05}
+\author[Matti Fischbach \& Dominic Santeler]{Matti Fischbach, Dominic Santeler}
+\footertext{Limits and Colimits; M. Fischbach, D. Santeler}
+\date{11.11.2026}
+\headerimage{6}
+
+\begin{document}
+
+\maketitle
+
+%% ==================================================================
+\section{Theory overview}
+%% ==================================================================
+
+\begin{frame}
+\frametitle{The chapter in one sentence}
+
+  \begin{block}{Main idea}
+    Terminal objects, products and equalizers are all \textbf{limits};
+    their duals are all \textbf{colimits}.
+  \end{block}
+
+  \medskip
+
+  \textbf{Three stages:}
+  \begin{enumerate}
+    \item \textbf{Preparation:} subobjects (generalized subsets) and pullbacks
+      (generalized intersections and inverse images).
+    \item \textbf{General theory:} diagrams, cones, limits. Every limit is built
+      from products and equalizers. Representable functors preserve limits.
+    \item \textbf{Colimits in practice:} pushouts, sequence colimits, least fixed
+      points.
+  \end{enumerate}
+
+  \medskip
+
+  \textbf{Today:} theory overview $\to$ discussion (Dominic) $\to$ exercises.
+
+\end{frame}
+
+%% ------------------------------------------------------------------
+\subsection{Subobjects}
+
+\begin{frame}[fragile]
+\frametitle{Subobjects}
+
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \begin{block}{Definition}
+        A \textbf{subobject} of $X$ is a mono $m: M \mono X$.
+      \end{block}
+
+      \begin{itemize}
+        \item $m \subseteq m'$ iff $m = m' f$. Such $f$ is unique
+          ($m'$ monic), so $\Sub(X)$ is a \textbf{preorder}.
+        \item $m \equiv m'$ iff $m \subseteq m'$ and $m' \subseteq m$;
+          then $M \cong M'$ over $X$.
+        \item Equivalent monos give the \emph{same part}, so we identify them:
+          subobject $= [m]$. Then $\Sub(X)$ is a poset;
+          in \Sets: $\Sub(X) \cong P(X)$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \[
+      \begin{tikzcd}[column sep=large]
+        M \ar[rr, "f", dashed] \ar[dr, tail, "m"'] & & M' \ar[dl, tail, "m'"] \\
+        & X &
+      \end{tikzcd}
+      \]
+
+      \smallskip
+
+      {\small\textbf{Seats:} $X = \{a, b, c, d\}$.
+      \textit{$1 \mapsto a, 2 \mapsto b$ and $x \mapsto b, y \mapsto a$ are different
+      monos, but the \emph{same part} $\{a, b\}$ of $X$. So they are equivalent.}}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Membership via generalized elements}
+
+  \begin{block}{Local membership}
+    For $z: Z \to X$ and $m: M \mono X$: \quad
+    $z \inX{X} M$ \ iff \ $z = m f$ for some (unique) $f: Z \to M$.
+  \end{block}
+
+  \begin{itemize}
+    \item $z$ is a \emph{probe}: it is in $M$ iff it lands entirely in $M$.
+      For $Z = 1$ in \Sets\ this is ordinary $\in$.
+    \item Subobjects are determined by their generalized elements:
+      \[
+        M \subseteq N \iff \forall z: \ z \inX{X} M \Rightarrow z \inX{X} N.
+      \]
+    \item Equalizers are subobjects carved out by a condition:
+      \[
+        E = \{ z \in A \mid f z = g z \} \subseteq A
+        \qquad
+        \begin{tikzcd}[]
+          E \ar[r, tail, "e"] & A \ar[r, shift left, "f"] \ar[r, shift right, "g"'] & B
+        \end{tikzcd}
+      \]
+  \end{itemize}
+
+\end{frame}
+
+%% ------------------------------------------------------------------
+\subsection{Pullbacks}
+
+\begin{frame}[fragile]
+\frametitle{Pullbacks}
+
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
+      \centering
+      \[
+        \begin{tikzcd}[sep=large]
+        |[visible on=<3->]| Z \ar[drr, bend left, "z_2", visible on=<3->]
+          \ar[ddr, bend right, "z_1"', visible on=<3->]
+          \ar[dr, dashed, green, "u", visible on=<3->] & & \\
+        & |[visible on=<2->]| P \ar[r, "p_2", visible on=<2->] \ar[d, "p_1"', visible on=<2->]
+          & B \ar[d, orange, "g"] \\
+        & A \ar[r, blue, "f"'] & C
+      \end{tikzcd}
+      \]
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \only<1>{
+        \textbf{Input:} a \emph{corner} $\cf{f}: A \to C$, $\cg{g}: B \to C$.
+
+        \medskip
+
+        $A$ students, $B$ restaurants, $C$ cities; \\
+        $\cf{f}$, $\cg{g}$ give the city.
+      }
+      \only<2>{
+        \textbf{Square:} $p_1, p_2$ with $\cf{f} p_1 = \cg{g} p_2$.
+
+        \medskip
+
+        $P$ = pairs (student, restaurant) in the \emph{same city}:
+        A SQL inner join.
+      }
+      \only<3->{
+        \textbf{UMP:} for all $z_1, z_2$ with $\cf{f} z_1 = \cg{g} z_2$ there is
+        a \emph{unique} $\cu{u}$ with $p_1 \cu{u} = z_1$, $p_2 \cu{u} = z_2$.
+
+        \medskip
+
+        $Z$ = list of dinner bookings; $\cu{u}$ points each booking to its
+        row of $P$.
+        \begin{itemize}
+          \item \textbf{Existence:} every booking needs a row, so $P$ contains
+            \emph{all} matching pairs.
+          \item \textbf{Uniqueness:} exactly one row, so $P$ has no duplicates
+            or extra data.
+        \end{itemize}
+      }
+    \end{column}
+  \end{columns}
+
+  \vfill
+
+  \visible<4->{
+    {\small
+    \begin{itemize}
+      \item \textbf{Notation:} $P = A \times_C B$, like a product but only pairs
+        that agree over $C$; $\cu{u} = \pair{z_1, z_2}$.
+      \item \textbf{Unique up to unique iso:} two pullbacks differ only by row
+        IDs or column order, matched by exactly one iso respecting $p_1, p_2$.
+      \item \textbf{Slice view:} in $\C/C$ (objects: things with a city),
+        $\cf{f}, \cg{g}$ are objects and $P$ is their product. \extag{5.1}
+    \end{itemize}
+    }
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Construction and special cases}
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Prop.\ 5.5:} build $P$ in two steps.
+      \begin{enumerate}
+        \item \textbf{Product} $A \times B$: all pairs $\pair{a, b}$.
+          ({\small\texttt{FROM}})
+        \item \textbf{Equalizer} of $\cf{f}\pi_1, \cg{g}\pi_2: A \times B \to C$:
+          keep pairs with $\cf{f} a = \cg{g} b$. ({\small\texttt{WHERE}})
+      \end{enumerate}
+      \[
+        A \times_C B = \{ \pair{a, b} \in A \times B \mid \cf{f} a = \cg{g} b \}
+      \]
+      {\small $\cf{f}\pi_1$ = student's city, $\cg{g}\pi_2$ = restaurant's city.}
+
+      \medskip
+
+      \begin{semiverbatim}\small
+SELECT *
+FROM   student s, restaurant r
+WHERE  s.city = r.city
+      \end{semiverbatim}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \textbf{Special cases:}
+
+      \smallskip
+
+      {\small
+      \begin{tabular}{@{}ll@{}}
+        \toprule
+        corner & pullback \\
+        \midrule
+        $C = 1$ & product $A \times B$ \\
+        $\cg{g}$ mono $V \mono C$ & inverse image $\cf{f}^{-1}(V)$ \\
+        both mono & intersection $U \cap V$ \\
+        \bottomrule
+      \end{tabular}
+      }
+
+      \medskip
+
+      Inverse images work in any category: pulling back a mono gives a
+      mono, so every $f: A \to C$ gives
+      \[
+        f^{-1}: \Sub(C) \to \Sub(A).
+      \]
+      \extag{5.2 (c), 5.8}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Two-pullbacks lemma}
+
+  \begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+      \[
+      \begin{tikzcd}[sep=large]
+        F \ar[r, "f'"] \ar[d, "h''"'] & E \ar[r, "g'"] \ar[d, "h'"] & D \ar[d, "h"] \\
+        A \ar[r, "f"'] & B \ar[r, "g"'] & C
+      \end{tikzcd}
+      \]
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      {\small
+      $A$ students, $B$ cities, $C$ countries, $D$ consulates. \\
+      $E$ = (city, consulate in its country), \\
+      $F$ = (student, consulate in the student's country). \\
+      \extag{5.2, 5.8}}
+    \end{column}
+  \end{columns}
+
+  \begin{enumerate}
+    \item \textbf{Pasting:} both squares pullbacks $\Rightarrow$ rectangle
+      pullback.
+
+      {\small Joining in two steps = joining in one: $A \times_B (B \times_C D)
+      \cong A \times_C D$.}
+    \item \textbf{Cutting:} right square and rectangle pullbacks $\Rightarrow$
+      left square pullback.
+  \end{enumerate}
+
+  \begin{alertblock}{Not symmetric}
+    Left square and rectangle pullbacks $\not\Rightarrow$ right square pullback.
+
+    {\small $A = F = \emptyset$ makes left and outer trivially pullbacks, whatever
+    the right side does; with $B = C = E = 1$, $D = 2$ the right one fails,
+    since $1 \times_1 2 = 2 \neq 1$.}
+  \end{alertblock}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Pullback is a functor}
+
+  \begin{itemize}
+    \item Fix $h: C' \to C$. Pulling back along $h$ \emph{changes the base}
+      (Prop.\ 5.10):
+      \[
+        h^*: \C/C \to \C/C', \qquad
+        (A \xrightarrow{\alpha} C) \mapsto (C' \times_C A \xrightarrow{\alpha'} C').
+      \]
+    \item {\small Example: $h$: hotels $\to$ cities. $h^*$(students $\to$ cities)
+      = for each hotel, the students in that hotel's city.}
+    \item \textbf{Functor:} arrows over $C$ go to arrows over $C'$, compatibly
+      with $1$ and $\circ$. Proof: uniqueness of the UMP + two-pullbacks lemma.
+    \item \textbf{On subobjects:} $f^{-1}: \Sub(C) \to \Sub(A)$ is monotone,
+      $M \subseteq N \Rightarrow f^{-1}(M) \subseteq f^{-1}(N)$.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Substitution is pullback}
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \[
+      \begin{tikzcd}[sep=large]
+        f^{-1}(V_\varphi) \ar[r] \ar[d, tail] & V_\varphi \ar[r] \ar[d, tail]
+          & 1 \ar[d, "\top"] \\
+        B \ar[r, "f"'] & A \ar[r, "\varphi"'] & 2
+      \end{tikzcd}
+      \]
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      A predicate is $\varphi: A \to 2 = \{\bot, \top\}$. Its
+      \textbf{extension} $V_\varphi = \{x \mid \varphi(x) = \top\}$ is the
+      pullback of $\top$ (right square).
+    \end{column}
+  \end{columns}
+
+  \begin{itemize}
+    \item Pasting both squares (two-pullbacks lemma):
+      \[
+        f^{-1}(V_\varphi) = V_{\varphi f}
+        = \{ y \mid \varphi(f(y)) = \top \}.
+      \]
+    \item \textbf{Meaning:} pulling back along $f$ = substituting $f(y)$ for $x$.
+      {\small $\varphi(x)$: ``$x$ even'', $f(y) = y + 1$ $\leadsto$
+      ``$y + 1$ even'' $=$ odd numbers.}
+    \item {\small Same idea: reindexing a family $(A_i)$ along
+      $\alpha: J \to I$ is pullback (Example 5.13).}
+  \end{itemize}
+
+\end{frame}
+
+%% ------------------------------------------------------------------
+\subsection{Limits}
+
+\begin{frame}[fragile]
+\frametitle{Diagrams, cones, limits}
+
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item \textbf{Diagram} of type $\J$: a functor $D: \J \to \C$.
+        \item \textbf{Cone} to $D$: vertex $C$ and arrows $c_j: C \to D_j$
+          with $D_\alpha c_i = c_j$ for all $\alpha: i \to j$.
+        \item \textbf{Limit}: a \emph{terminal} object of $\Cone(D)$.
+      \end{itemize}
+
+      \medskip
+
+      UMP: every cone factors uniquely through the limit.
+      Unique up to unique iso \emph{for free}, since terminal objects are.
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \[
+      \begin{tikzcd}[column sep=small]
+        & C \ar[d, dashed, green, "u"]
+          \ar[ddl, bend right, "c_i"'] \ar[ddr, bend left, "c_j"] & \\
+        & \lim_j D_j \ar[dl, "p_i"'] \ar[dr, "p_j"] & \\
+        D_i \ar[rr, "D_\alpha"'] & & D_j
+      \end{tikzcd}
+      \]
+    \end{column}
+  \end{columns}
+
+  \medskip
+
+  {\small
+  \begin{tabular}{@{}llllll@{}}
+    \toprule
+    $\J$ & empty & discrete & $\bullet \rightrightarrows \bullet$
+      & $\bullet \to \bullet \leftarrow \bullet$ & poset \\
+    \midrule
+    limit & terminal $1$ & product & equalizer & pullback & infimum \\
+    \bottomrule
+  \end{tabular}
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{All limits from products and equalizers}
+
+  \begin{block}{Prop.\ 5.14 and 5.21}
+    $\C$ has finite limits $\iff$ finite products $+$ equalizers
+    $\iff$ pullbacks $+$ $1$.
+  \end{block}
+
+  \textbf{Idea:} take the product of all objects, then equalize the two ways to
+  reach each $D_j$:
+  \[
+  \begin{tikzcd}
+    E \ar[r, tail, "e"] & \prod_i D_i \ar[r, shift left, "\varphi"]
+      \ar[r, shift right, "\psi"'] & \prod_{\alpha: i \to j} D_j
+  \end{tikzcd}
+  \qquad
+  \pi_\alpha \varphi = \pi_j, \quad \pi_\alpha \psi = D_\alpha \pi_i
+  \]
+
+  In \Sets: \emph{compatible families}
+  \[
+    \lim_j D_j = \{ (x_i)_i \in \textstyle\prod_i D_i \mid D_\alpha(x_i) = x_j
+    \text{ for all } \alpha: i \to j \}.
+  \]
+
+  {\small Same proof for any size (Cor.\ 5.22): \Sets\ is \emph{complete}.
+  Limits are functorial in the diagram.}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Preservation of limits}
+
+  \begin{itemize}
+    \item $F$ \textbf{preserves} limits of type $\J$: the image of a limiting cone
+      is again limiting, $F(\lim_j D_j) \cong \lim_j F D_j$ (canonically).
+    \item \textbf{Prop.\ 5.25:} representables $\Hom(C, -)$ preserve all limits.
+  \end{itemize}
+
+  \begin{block}{In one line: an arrow into a limit is the same as a cone}
+    \[
+      \Hom(C, \lim_j D_j) \;\cong\; \Cone(C, D) \;\cong\; \lim_j \Hom(C, D_j)
+    \]
+  \end{block}
+
+  \begin{itemize}
+    \item Contravariant: $\Hom(-, C)$ turns \emph{colimits into limits}
+      (Cor.\ 5.27), e.g.
+      \[
+        \Hom(X + Y, C) \cong \Hom(X, C) \times \Hom(Y, C)
+        \quad\leadsto\quad k^{m+n} = k^m \cdot k^n.
+      \]
+  \end{itemize}
+
+\end{frame}
+
+%% ------------------------------------------------------------------
+\subsection{Colimits}
+
+\begin{frame}[fragile]
+\frametitle{Colimits and pushouts}
+
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item \textbf{Colimit}: initial \emph{cocone} $c_j: D_j \to C$.
+        \item From coproducts and coequalizers (Thm.\ 5.23). In \Sets:
+          \[
+            \colim_j D_j = \textstyle\coprod_i D_i \,/\, (x \sim D_\alpha x).
+          \]
+      \end{itemize}
+
+      \begin{block}{Slogan}
+        Limits are \emph{subobjects of products}; \\
+        colimits are \emph{quotients of coproducts}.
+      \end{block}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \textbf{Pushout} $B +_A C$ (dual of pullback):
+      \[
+      \begin{tikzcd}
+        A \ar[r, "g"] \ar[d, "f"'] & C \ar[d, "q_2"] \\
+        B \ar[r, "q_1"'] & B +_A C
+      \end{tikzcd}
+      \]
+      {\small Glue $B$ and $C$ along $A$:
+      \begin{itemize}
+        \item $B \cup C$ glued along $B \cap C$,
+        \item $S^2$ = two disks glued along $S^1$.
+      \end{itemize}}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Colimits of sequences}
+
+  \textbf{Direct limit} of $G_0 \to G_1 \to G_2 \to \cdots$ (index category
+  $\omega$):
+  \begin{itemize}
+    \item elements are classes $[x_n]$; identified iff they
+      \emph{eventually become equal},
+    \item e.g.\ $\mathbb{Z} \xrightarrow{\cdot 2} \mathbb{Z} \xrightarrow{\cdot 2}
+      \cdots$ has colimit $\mathbb{Z}[1/2]$, the dyadic rationals.
+  \end{itemize}
+
+  \textbf{Creation:} $U: \mathbf{Groups} \to \Sets$ \emph{creates} all limits and
+  $\omega$-colimits: compute on underlying sets, lift uniquely.
+  \begin{itemize}
+    \item But not all colimits: coproducts in $\mathbf{Ab}$ have the
+      \emph{product} as underlying set.
+  \end{itemize}
+
+  \textbf{Cumulative hierarchy:} $V_0 = \emptyset$, $V_{n+1} = P(V_n)$,
+  \quad $V_\omega = \colim_n V_n = \bigcup_n V_n$.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{$\omega$CPOs and least fixed points}
+
+  \begin{itemize}
+    \item \textbf{$\omega$CPO}: poset where every chain $d_0 \le d_1 \le \cdots$
+      has a colimit (= least upper bound).
+    \item $h$ \textbf{continuous}: $h(\colim d_n) = \colim h(d_n)$.
+  \end{itemize}
+
+  \begin{block}{Prop.\ 5.34 (Kleene)}
+    With initial $0$ and continuous $h: D \to D$: \
+    $d_0 = 0$, $d_{n+1} = h(d_n)$. \
+    Then $d_\omega = \colim_n d_n$ is the \emph{least fixed point} of $h$.
+  \end{block}
+
+  {\small \textbf{Recursion:} $\mathrm{fac}$ is the least fixed point on partial
+  functions $\mathbb{N} \rightharpoonup \mathbb{N}$; $d_n$ = recursion unfolded
+  $n$ times.}
+
+  \medskip
+
+  \textbf{The ambient category matters:} $\omega_0 \to \omega_1 \to \omega_2 \to
+  \cdots$
+  \begin{itemize}
+    \item in $\mathbf{Pos}$ the colimit is $\omega$, \extag{5.12}
+    \item in $\omega$CPOs it is $\omega + 1$, since $\omega$ itself is not
+      $\omega$-complete.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Summary}
+
+  {\small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    shape of $\J$ & limit & colimit \\
+    \midrule
+    empty & terminal object & initial object \\
+    discrete & product & coproduct \\
+    parallel pair & equalizer & coequalizer \\
+    corner / span & pullback & pushout \\
+    chain $\omega$ & $D_0$ & direct limit \\
+    \midrule
+    construction & products $+$ equalizers & coproducts $+$ coequalizers \\
+    in \Sets & compatible families & $\coprod_i D_i$ modulo $x \sim D_\alpha x$ \\
+    in a poset & infimum & supremum \\
+    representables & $\Hom(C, -)$ preserves & $\Hom(-, C)$ sends to limits \\
+    \bottomrule
+  \end{tabular}
+  }
+
+\end{frame}
+
+%% ==================================================================
+\section{Discussion}
+%% ==================================================================
+
+\begin{frame}
+\frametitle{Discussion}
+
+\end{frame}
+
+\end{document}
