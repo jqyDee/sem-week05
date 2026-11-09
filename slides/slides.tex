@@ -139,9 +139,12 @@
       \end{tikzcd}
       \]
 
-      \visible<2->{\small\textbf{Seats} $\{a, b, c, d\}$: $1 \mapsto a, 2 \mapsto b$
-      and $x \mapsto b, y \mapsto a$: $\subseteq$ both ways, one subobject
-      $\{a, b\}$.}
+      \visible<2->{
+      \begin{exampleblock}{Example}
+        \small\textbf{Seats} $\{a, b, c, d\}$: $1 \mapsto a, 2 \mapsto b$
+        and $x \mapsto b, y \mapsto a$: $\subseteq$ both ways, one subobject
+        $\{a, b\}$.
+      \end{exampleblock}}
     \end{column}
   \end{columns}
 
@@ -173,14 +176,18 @@
 
         \medskip
 
-        $A$ students, $B$ restaurants, $C$ cities.
+        \begin{exampleblock}{Example}
+          $A$ students, $B$ restaurants, $C$ cities.
+        \end{exampleblock}
       }
       \only<2>{
         \textbf{Square:} $\cf{f} p_1 = \cg{g} p_2$.
 
         \medskip
 
-        $P$ = (student, restaurant) in the \emph{same city}: an inner join.
+        \begin{exampleblock}{Example}
+          $P$ = (student, restaurant) in the \emph{same city}: an inner join.
+        \end{exampleblock}
       }
       \only<3->{
         \textbf{UMP:} every $z_1, z_2$ with $\cf{f} z_1 = \cg{g} z_2$ factors
@@ -188,11 +195,13 @@
 
         \medskip
 
-        $Z$ = bookings, $\cu{u}$ = each booking's row.
-        \begin{itemize}
-          \item exists: $P$ has \emph{all} matching pairs
-          \item unique: $P$ has no duplicates
-        \end{itemize}
+        \begin{exampleblock}{Example}
+          $Z$ = bookings, $\cu{u}$ = each booking's row.
+          \begin{itemize}
+            \item exists: $P$ has \emph{all} matching pairs
+            \item unique: $P$ has no duplicates
+          \end{itemize}
+        \end{exampleblock}
       }
     \end{column}
   \end{columns}
@@ -219,11 +228,13 @@
 
       \medskip
 
-      \begin{semiverbatim}\small
+      \begin{exampleblock}{Example}
+        \begin{semiverbatim}\small
 SELECT *
 FROM   student s, restaurant r
 WHERE  s.city = r.city
-      \end{semiverbatim}
+        \end{semiverbatim}
+      \end{exampleblock}
     \end{column}
     \begin{column}{0.46\textwidth}
       \textbf{Special cases:}
@@ -294,7 +305,7 @@ WHERE  s.city = r.city
     \end{column}
   \end{columns}
 
-  \begin{block}{Example: the corner $A \to C \leftarrow B$}
+  \begin{exampleblock}{Example: the corner $A \to C \leftarrow B$}
     \begin{columns}[c,onlytextwidth]
       \begin{column}{0.6\textwidth}
         The leg to $C$ is forced: $\cf{f} z_1 = \cg{g} z_2$.
@@ -308,7 +319,7 @@ WHERE  s.city = r.city
         \end{tikzcd}$
       \end{column}
     \end{columns}
-  \end{block}
+  \end{exampleblock}
 
 \end{frame}
 
@@ -403,8 +414,10 @@ WHERE  s.city = r.city
     \]
   \end{block}
 
-  \textbf{E.g.} $\Hom(C, A \times B) \cong \Hom(C, A) \times \Hom(C, B)$:
-  an arrow into a product is a pair of arrows.
+  \begin{exampleblock}{Example}
+    $\Hom(C, A \times B) \cong \Hom(C, A) \times \Hom(C, B)$:
+    an arrow into a product is a pair of arrows.
+  \end{exampleblock}
 
 \end{frame}
 
@@ -469,9 +482,11 @@ WHERE  s.city = r.city
     is the \emph{least fixed point} of $h$.
   \end{block}
 
-  \textbf{Recursion:} $h(p)(0) = 1$, \ $h(p)(n) = n \cdot p(n-1)$ on
-  partial functions $\mathbb{N} \rightharpoonup \mathbb{N}$.
-  $h^n(0)$ knows $\mathrm{fac}$ on $0, \dots, n-1$; \ $\cu{d_\omega} = \mathrm{fac}$.
+  \begin{exampleblock}{Example}
+    \textbf{Recursion:} $h(p)(0) = 1$, \ $h(p)(n) = n \cdot p(n-1)$ on
+    partial functions $\mathbb{N} \rightharpoonup \mathbb{N}$.
+    $h^n(0)$ knows $\mathrm{fac}$ on $0, \dots, n-1$; \ $\cu{d_\omega} = \mathrm{fac}$.
+  \end{exampleblock}
 
 \end{frame}
 
@@ -622,7 +637,7 @@ WHERE  e.WorksIn = d.ID
   \end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Part 2: Limits in Programming (Records)}
 
   \begin{columns}[c]
@@ -641,20 +656,23 @@ WHERE  e.WorksIn = d.ID
       \textbf{Record = Product = Limit}
       
       \medskip
-      \onslide<2->{
-      \begin{semiverbatim}\scriptsize
-data Person = Person
-  { name :: String
-  , age  :: Int }
-      \end{semiverbatim}
-      }
+      \begin{uncoverenv}<2->
+        \scriptsize
+        \begin{verbatim}
+data Person = Person { name :: String 
+                     , age  :: Int }
+        \end{verbatim}
+      \end{uncoverenv}
     \end{column}
   \end{columns}
 
   \vspace{0.3cm}
   \begin{itemize}
-    \item<3-> The record type is a cone over a discrete graph. The field selectors \texttt{.NAME} and \texttt{.AGE} are the coordinate projections.
-    \item<4-> \textbf{Declarative vs Imperative:} We define the type by its projections, not by the memory layout.
+    \item<3-> The record type is a cone over a discrete graph. The field
+      selectors \texttt{.NAME} and \texttt{.AGE} are the coordinate
+      projections.
+    \item<4-> \textbf{Declarative vs Imperative:} We define the type by its
+      projections, not by the memory layout.
   \end{itemize}
 \end{frame}
 
@@ -712,29 +730,25 @@ data Either a b
     \bottomrule
   \end{tabular}
   
-  \vspace{0.6cm}
-  
-  \begin{block}{Example: Conjunction Elimination (Limit)}
-    \textbf{Logic:} From \(A \land B\), we can prove \(A\). \\
-    \textbf{Category:} The projection map \(\pi_1 : A \times B \to A\). \\
-    \textbf{Programming:} \texttt{fst :: (a, b) -> a} (in Haskell/C++)
-  \end{block}
-
-  \vspace{0.4cm}
-  \onslide<2->{
-  \begin{alertblock}{Example: Disjunction Introduction (Colimit)}
-    \textbf{Logic:} From \(A\), we can prove \(A \lor B\). \\
-    \textbf{Category:} The injection map \(\iota_1 : A \to A + B\). \\
-    \textbf{Programming:} \texttt{Left :: a -> Either a b} (wrapping a value)
-  \end{alertblock}
-  }
-
-  \vspace{0.3cm}
-  \onslide<3->{
-  \centering
-  {\large \textbf{Limits are AND. Colimits are OR.}}
-  }
-
+  \begin{overprint}
+    \onslide<1>
+    \begin{block}{Example: Conjunction Elimination (Limit)}
+      \textbf{Logic:} From \(A \land B\), we can prove \(A\). \\
+      \textbf{Category:} The projection map \(\pi_1 : A \times B \to A\). \\
+      \textbf{Programming:} \texttt{fst :: (a, b) -> a} (in Haskell/C++)
+    \end{block}
+    \onslide<2>
+    \begin{alertblock}{Example: Disjunction Introduction (Colimit)}
+      \textbf{Logic:} From \(A\), we can prove \(A \lor B\). \\
+      \textbf{Category:} The injection map \(\iota_1 : A \to A + B\). \\
+      \textbf{Programming:} \texttt{Left :: a -> Either a b} (wrapping a value)
+    \end{alertblock}
+    \onslide<3>
+    \vspace{0.4cm}
+    \centering
+    {\large \textbf{Limits are AND. Colimits are OR.}}
+    \par
+  \end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
