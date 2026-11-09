@@ -1,0 +1,310 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{tikz-cd}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage[titletoc,title]{appendix}
+
+\tikzcdset{sep=huge}
+
+\title{Chapter 05}
+\author{Exercises}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Exercise 1}
+
+Exercise 1 Chapter 05: \textit{
+  Show that a pullback of arrows
+}
+\[
+\begin{tikzcd}
+  A \times_{X} B \ar[r, "p_2"] \ar[d, "p_1"'] & B \ar[d, "g"] \\
+  A \ar[r, "f"'] & X
+\end{tikzcd}
+\]
+\textit{
+in a category $\mathbf{C}$ is the same thing as their product in the slice
+category $\mathbf{C}/X$.
+}
+
+Objects of $\mathbf{C}/X$ are $(A,f)$ with $f : A \to X$; arrows
+$h : (A,f) \to (B,g)$ are $h : A \to B$ with $g h = f$.
+
+\textbf{Claim.} $(P,p_1,p_2)$ is a pullback of $f, g$ iff
+$\bigl((P,r),p_1,p_2\bigr)$ is a product of $(A,f), (B,g)$ in $\mathbf{C}/X$,
+where $r = f p_1 = g p_2$ (forced, since $p_1, p_2$ must be slice arrows).
+
+\textbf{Key fact ($\ast$).} If $f z_1 = s$, then every $v : Z \to P$ with
+$p_1 v = z_1$ is a slice arrow $(Z,s) \to (P,r)$:
+$r v = f p_1 v = f z_1 = s$.
+
+\subsection*{Pullback $\Rightarrow$ product in $\mathbf{C}/X$}
+
+Let $z_1 : (Z,s) \to (A,f)$, $z_2 : (Z,s) \to (B,g)$ be slice arrows, so
+$f z_1 = s = g z_2$. The pullback gives a unique $u : Z \to P$ with
+$p_i u = z_i$. By ($\ast$), $u$ is a slice arrow. Any other slice arrow
+with $p_i u' = z_i$ is an arrow of $\mathbf{C}$, so $u' = u$.
+
+\subsection*{Product in $\mathbf{C}/X$ $\Rightarrow$ Pullback}
+
+The square commutes: $f p_1 = r = g p_2$. Let $f z_1 = g z_2$ in
+$\mathbf{C}$ and put $s := f z_1$. Then $z_1, z_2$ are slice arrows out of
+$(Z,s)$, and the product gives a unique slice arrow $u$ with $p_i u = z_i$.
+Any $u' : Z \to P$ in $\mathbf{C}$ with $p_i u' = z_i$ is a slice arrow by
+($\ast$), so $u' = u$. \hfill$\square$
+
+\section{Exercise 2}
+
+Exercise 2 Chapter 05: \textit{
+  Let $\mathbf{C}$ be a category with pullbacks.
+}
+
+We use Exercise~1 (pullback over $X$ $=$ product in $\mathbf{C}/X$) and the
+\textbf{two-pullbacks lemma}: if in two adjacent commuting squares the right
+one is a pullback, then the left one is a pullback iff the outer rectangle is.
+
+\subsection*{(a)}
+
+\textit{Show that an arrow $m : M \rightarrow X$ in $\mathbf{C}$ is monic if
+and only if the diagram below is a pullback.}
+\[
+  \begin{tikzcd}
+    M \ar[r, "1_{M}"] \ar[d, "1_{M}"'] & M \ar[d, "m"] \\
+    M \ar[r, "m"'] & X
+  \end{tikzcd}
+\]
+\textit{Thus, as an object $\mathbf{C}/X$, $m$ is monic iff $m \times m \cong m$.}
+
+\medskip
+\noindent\textbf{Solution.}
+
+($\Rightarrow$) Let $m z_1 = m z_2$. Since $m$ is monic, $z_1 = z_2$, so
+$u := z_1$ is the unique arrow with $1_M u = z_1$, $1_M u = z_2$.
+
+($\Leftarrow$) Let $m z_1 = m z_2$. The pullback gives $u$ with
+$z_1 = 1_M u = z_2$. So $m$ is monic.
+
+By Exercise~1, $m$ is monic iff $\bigl((M,m),1_M,1_M\bigr)$ is a product in
+$\mathbf{C}/X$, i.e.\ the diagonal $\langle 1_M,1_M\rangle : m \to m \times m$
+is an iso. (The iso must be the diagonal: in $\mathbf{Sets}/X$ any $m$ with
+infinite fibres has $m \times m \cong m$ without being monic.)
+
+\subsection*{(b)}
+
+\textit{Show that the pullback along an arrow $f: Y \rightarrow X$ of a pullback square over $X$,}
+\[
+  \begin{tikzcd}
+    A \times_{X} B \ar[r] \ar[d] & B \ar[d] \\
+    A \ar[r] & X
+  \end{tikzcd}
+\]
+\textit{is again a pullback square over $Y$. (Hint: draw a cube and use the
+two-pullbacks lemma.) Conclude that the pullback functor $f^{*}$ preserves
+products.}
+
+\medskip
+\noindent\textbf{Solution.}
+
+Let $(P,p_1,p_2)$ be a pullback of $a : A \to X$, $b : B \to X$, and
+$r := a p_1 = b p_2$. Pull back $a, b, r$ along $f$ to get
+$a' : A' \to Y$, $b' : B' \to Y$, $r' : P' \to Y$ with top arrows
+$f_A, f_B, f_P$. The induced $p_1' : P' \to A'$ satisfies $a' p_1' = r'$ and
+$f_A p_1' = p_1 f_P$ (it exists since $a(p_1 f_P) = r f_P = f r'$);
+similarly $p_2'$. So $a' p_1' = b' p_2'$.
+
+\textbf{Step 1.} In
+\[
+  \begin{tikzcd}[sep=large]
+    P' \ar[r, "p_1'"] \ar[d, "f_P"'] & A' \ar[r, "a'"] \ar[d, "f_A"] & Y \ar[d, "f"] \\
+    P \ar[r, "p_1"'] & A \ar[r, "a"'] & X
+  \end{tikzcd}
+\]
+the right square and the outer rectangle (the square defining $P'$) are
+pullbacks, so the left square is a pullback.
+
+\textbf{Step 2.} In
+\[
+  \begin{tikzcd}[sep=large]
+    P' \ar[r, "p_2'"] \ar[d, "p_1'"'] & B' \ar[r, "f_B"] \ar[d, "b'"] & B \ar[d, "b"] \\
+    A' \ar[r, "a'"'] & Y \ar[r, "f"'] & X
+  \end{tikzcd}
+\]
+the right square is a pullback. The outer rectangle has the same arrows
+($f_B p_2' = p_2 f_P$, $f a' = a f_A$) as the left square of Step~1,
+transposed, pasted with the original pullback, so it is a pullback. Hence the left square is a
+pullback: $P' \cong A' \times_Y B'$.
+
+\textbf{$f^*$ preserves products.} $f^*p_i = p_i'$ by definition of $f^*$ on
+arrows. By Exercise~1, products in $\mathbf{C}/X$ are pullbacks over $X$;
+these go to pullbacks over $Y$, i.e.\ products in $\mathbf{C}/Y$.
+
+\subsection*{(c)}
+
+\textit{Conclude from the foregoing that in a pullback square}
+\[
+\begin{tikzcd}
+  M' \ar[r, "g"] \ar[d, "m'"'] & M \ar[d, "m"] \\
+  A' \ar[r, "f"'] & A
+\end{tikzcd}
+\]
+\textit{if $m$ is monic, then so is $m'$.}
+
+\medskip
+\noindent\textbf{Solution.}
+
+Take the given square as $f^*(M,m) = (M',m')$ (pullbacks are unique up to
+iso). By (a), $(M,m)$ with legs $1_M, 1_M$ is a product in $\mathbf{C}/A$.
+By (b), $(M',m')$ with legs $f^*1_M = 1_{M'}$ ($f^*$ is a functor) is a
+product in $\mathbf{C}/A'$. By (a), $m'$ is monic.
+\hfill$\square$
+
+\section{Exercise 3}
+
+Exercise 8 Chapter 05: \textit{
+  (Partial maps) For any category $\mathbf{C}$ with pullbacks, define the
+  category $\textbf{Par}(\mathbf{C})$ of partial maps in $\mathbf{C}$ as
+  follows: the objects are the same as those of $\mathbf{C}$, but an arrow $f:
+  A \rightarrow B$ is a pair $(|f|,U_{f})$, where $U_{f} \rightarrowtail A$ is
+  a subobject and $|f|: U_{f} \rightarrow B$ is a suitable equivalence class of
+  arrows, as indicated in the diagram:
+}
+\[
+\begin{tikzcd}
+  U_{f} \ar[r, "\lvert f \rvert"] \ar[d, >->] & B \\
+  A &
+\end{tikzcd}
+\]
+\textit{
+  Composition of $(\lvert f \rvert,U_{f}): A \rightarrow B$ and $(\lvert g
+  \rvert,U_{g}): B \rightarrow C$ is given by taking a pullback and then
+  composing to get $(\lvert g \circ f \rvert, \lvert f \rvert^{*}(U_{g}))$, as suggested by the
+  following diagram:
+}
+\[
+\begin{tikzcd}
+  \lvert f \rvert^{*} (U_{g}) \ar[r] \ar[d, >->] & U_{g} \ar[r] \ar[d, >->] & C \\
+  U_{f} \ar[r] \ar[d, >->] & B & \\
+  A & &
+\end{tikzcd}
+\]
+\textit{
+  Verify that this really does define a category, and show that there is a
+  functor,
+  $$\mathbf{C} \rightarrow \textbf{Par}(C)$$
+  which is the identity on objects.
+}
+
+\medskip
+\noindent\textbf{Solution.}
+
+A representative of $f : A \to B$ is a pair $(m, |f|)$ with a mono
+$m : U_f \rightarrowtail A$ and $|f| : U_f \to B$. Two pairs are equivalent,
+$(m,|f|) \sim (m',|f|')$, iff there is an iso $i : U_f \to U_f'$ with
+$m' i = m$ and $|f|' i = |f|$. (In $\mathbf{Sets}$: same subset, same rule.)
+
+\medskip
+\noindent\textbf{Composition.} Pull back $U_g \rightarrowtail B$ along $|f|$
+to get $V = |f|^*(U_g)$ with $n : V \to U_f$ and $v : V \to U_g$. Then
+$g \circ f = (|g| v,\ V \rightarrowtail U_f \rightarrowtail A)$.
+\begin{itemize}
+  \item \emph{Domain is a subobject:} $n$ is a pullback of a mono, hence monic
+    (Exercise~2(c)), and a composite of monos is monic.
+  \item \emph{Well defined:} pullbacks are unique up to iso, and changing a
+    representative by an iso changes the result only by an iso commuting with
+    all arrows. So the class of $g \circ f$ does not depend on choices.
+\end{itemize}
+
+\noindent\textbf{Identities.} $1_A = (1_A, A)$. Pulling back along an identity,
+or pulling back an identity, gives the same object back. Hence
+$f \circ 1_A = f$ and $1_B \circ f = (1_B |f|, U_f) = f$.
+
+\medskip
+\noindent\textbf{Associativity.} Let $h : C \to D$ be a third partial map, and
+let $T = |g|^*(U_h)$ be the domain of $h \circ g$. Pull back $T \to U_g$
+along $v$ to get $W$:
+\[
+  \begin{tikzcd}[sep=large]
+    W \ar[r] \ar[d] & T \ar[r] \ar[d] & U_h \ar[r, "|h|"] \ar[d, tail] & D \\
+    V \ar[r, "v"] \ar[d, "n"'] & U_g \ar[r, "|g|"] \ar[d, tail] & C & \\
+    U_f \ar[r, "|f|"'] \ar[d, tail] & B & & \\
+    A & & &
+  \end{tikzcd}
+\]
+All three squares are pullbacks. By the two-pullbacks lemma:
+\begin{itemize}
+  \item pasting the top-left square with the one to its right shows that
+    $W$ is the pullback of $U_h$ along $|g| v = |g \circ f|$, i.e.\ the domain
+    of $h \circ (g \circ f)$;
+  \item pasting it with the one below shows that $W$ is the pullback of
+    $T \rightarrowtail U_g \rightarrowtail B$ along $|f|$, i.e.\ the domain of
+    $(h \circ g) \circ f$.
+\end{itemize}
+Both composites are $W \to V \to U_f \rightarrowtail A$ with
+$W \to T \to U_h \to D$, so they are equal.
+
+\medskip
+\noindent\textbf{Functor.} Define $\mathbf{C} \to \mathbf{Par}(\mathbf{C})$ by
+$A \mapsto A$ and $f \mapsto (f, A)$ (domain $1_A : A \rightarrowtail A$).
+Identities go to identities. For $f : A \to B$, $g : B \to C$, pulling back
+$1_B$ along $f$ gives $A$ with legs $1_A$ and $f$, so
+$(g, B) \circ (f, A) = (g f, A)$. \hfill$\square$
+
+\section{Exercise 4}
+
+Exercise 12 Chapter 05: \textit{
+  Consider the sequence of posets $[0] \rightarrow [1] \rightarrow [2] \rightarrow \dots$, where
+  $$[n] = \{0 \leq \dots \leq n\},$$
+  and the arrows $[n] \rightarrow [n + 1]$ are the evident inclusions.
+  Determine the limit and colimit posets of this sequence.
+}
+
+\medskip
+\noindent\textbf{Solution.}
+
+Write $i_n : [n] \to [n+1]$, $k \mapsto k$. In $\mathbf{Pos}$ we compute the
+(co)limit on underlying sets and then equip it with the order that makes the
+legs monotone.
+
+\medskip
+\noindent\textbf{Colimit: $\omega = (\mathbb{N}, \leq)$.}
+The union of all $[n]$ is $\mathbb{N}$, and $k \leq l$ holds in $[n]$ for any
+$n \geq l$, so the order is the usual one. The legs are the inclusions
+$c_n : [n] \to \mathbb{N}$; they satisfy $c_{n+1} i_n = c_n$.
+Let $q_n : [n] \to Q$ be a cocone, i.e.\ $q_{n+1} i_n = q_n$. Define
+\[
+  u : \mathbb{N} \to Q, \qquad u(k) := q_n(k) \quad \text{for any } n \geq k .
+\]
+\begin{itemize}
+  \item \emph{Well defined:} by compatibility, all $q_n$ with $n \geq k$ agree on $k$.
+  \item \emph{Monotone:} for $k \leq l$ pick $n \geq l$; then
+    $u(k) = q_n(k) \leq q_n(l) = u(l)$.
+  \item \emph{Factors and unique:} $u c_n = q_n$ by definition, and every
+    $k$ lies in some $[n]$, so $u$ is forced.
+\end{itemize}
+Note that $\omega$ is none of the $[n]$: it has no top element.
+
+\medskip
+\noindent\textbf{Limit: $[0] = 1$.}
+An element of the limit is a family $(x_n)_n$ with $x_n \in [n]$ and
+$i_n(x_n) = x_{n+1}$, i.e.\ $x_{n+1} = x_n$. Hence $x_n = x_0 \in [0] = \{0\}$
+for all $n$, and the limit is the one-point poset with legs
+$l_n : [0] \to [n]$, $0 \mapsto 0$.
+Directly: a cone $a_n : L \to [n]$ satisfies $a_{n+1} = i_n a_n$, so it is
+determined by $a_0 : L \to [0]$, which is the unique map to the terminal
+object. So $[0]$ is a limit.
+
+\medskip
+\noindent\textbf{Why the asymmetry.} The index category $\omega$ has an
+initial object $0$, so the limit is just the value $[0]$ there. It has no
+terminal object, so the colimit is a new object, $\omega$.
+\hfill$\square$
+
+\end{document}
