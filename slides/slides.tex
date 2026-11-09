@@ -500,7 +500,311 @@ WHERE  s.city = r.city
 
 \begin{frame}
 \frametitle{Discussion}
+  \begin{block}{The abstract foundation (Awodey)}
+    Limits and colimits defined via pullbacks, equalizers, and universal properties.
+  \end{block}
 
+  \vspace{0.4cm}
+  
+  \begin{enumerate}
+    \item \textbf{Databases:} Schemas as categories, and how limits model SQL inner joins.
+    \item \textbf{Programming Languages:} Record types (limits) vs. Variant types (colimits).
+    \item \textbf{Logic:} The Curry-Howard-Lambek correspondence (AND/OR).
+    \item \textbf{Computation:} Programming category theory algorithms.
+  \end{enumerate}
+
+  \vspace{0.6cm}
+  \centering
+  \textbf{\color{uibkorange} Let's look at how these abstract concepts are applied.}
+\end{frame}
+
+\begin{frame}
+\frametitle{Part 1: Databases as Categories (Schema)}
+
+  \begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}
+        \item<1-> \textbf{Schema $\mathcal{C}$:} A finitely presented category. 
+        \vspace{0.3cm}
+        \item<2-> \textbf{Objects = Tables:} Employee, Department.
+        \vspace{0.3cm}
+        \item<3-> \textbf{Arrows = Foreign Keys:} WorksIn, Mngr, Secr.
+        \vspace{0.3cm}
+        \item<4-> \textbf{Constraint (Path Equation):} \\ \texttt{Mngr; WorksIn = WorksIn}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=1.5cm and 2cm, auto, >={stealth}, scale=0.8, transform shape]
+          \node[circle, draw, fill=white, inner sep=2pt] (E) {\footnotesize Employee};
+          \node[circle, draw, fill=white, inner sep=2pt, right=of E] (D) {\footnotesize Department};
+          \node[circle, draw, fill=white, inner sep=2pt, below=of E, yshift=0.5cm] (S) {\footnotesize String};
+          
+          \draw[->] (E) to[loop above] node {\footnotesize Mngr} (E);
+          \draw[->] (E) to[bend left] node {\footnotesize WorksIn} (D);
+          \draw[->] (D) to[bend left] node[swap] {\footnotesize Secr} (E);
+          \draw[->] (E) to node[swap] {\footnotesize FName} (S);
+          \draw[->] (D) to node {\footnotesize DName} (S);
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Part 1: Databases as Categories (Data Instance)}
+
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Employee Table} \\
+      {\scriptsize
+      \begin{tabular}{|l|l|l|l|}
+      \hline
+      \textbf{ID} & \textbf{FName} & \textbf{WorksIn} & \textbf{Mngr} \\ \hline
+      1 & Alan & 101 & 2 \\ \hline
+      2 & Ruth & 101 & 2 \\ \hline
+      3 & Kris & 102 & 3 \\ \hline
+      \end{tabular}
+      }
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{Department Table} \\
+      {\scriptsize
+      \begin{tabular}{|l|l|l|}
+      \hline
+      \textbf{ID} & \textbf{DName} & \textbf{Secr} \\ \hline
+      101 & Sales & 1 \\ \hline
+      102 & IT & 3 \\ \hline
+      \end{tabular}
+      }
+    \end{column}
+  \end{columns}
+
+  \vspace{0.6cm}
+  \begin{itemize}
+    \item<2-> \textbf{Instance $I: \mathcal{C} \to \mathbf{Set}$:} A functor. Maps each table object to a set of rows, and each foreign key arrow to a function mapping those rows.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Limits in Databases: The Inner Join}
+
+  \begin{columns}[T]
+    \begin{column}{0.45\textwidth}
+      \centering
+      \begin{tikzcd}[column sep=2cm, row sep=1.5cm]
+        |[visible on=<2->]| P \ar[r, "p_2", visible on=<2->] \ar[d, "p_1"', visible on=<2->]
+          & \text{Department} \ar[d, "g"'] \\
+        \text{Employee} \ar[r, "f"'] & \text{String}
+      \end{tikzcd}
+      
+      \vspace{0.3cm}
+      {\footnotesize \textbf{$P$:} Result Set (Joined Table)}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \textbf{A pullback models an SQL Inner Join.}
+      
+      \medskip
+      \begin{itemize}
+        \item<3-> \textbf{The Diagram:} A cospan (corner). Two tables sharing a foreign key.
+        \item<4-> \textbf{The Limit ($P$):} The set of pairs $(e, d)$ such that $f(e) = g(d)$.
+        \item<5-> \textbf{Universal Property:} Guarantees the result contains \textit{all} matching rows and \textit{no} duplicates. 
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \onslide<6->{
+      \begin{semiverbatim}\scriptsize
+SELECT *
+FROM   Employee e, Department d
+WHERE  e.WorksIn = d.ID
+      \end{semiverbatim}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Part 2: Limits in Programming (Records)}
+
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=1.5cm and 1.5cm, auto, >={stealth}]
+        \node (Person) {\texttt{PERSON}};
+        \node (Name) [below left=of Person] {\texttt{String}};
+        \node (Age) [below right=of Person] {\texttt{Integer}};
+        
+        \draw[->] (Person) to node [swap] {\texttt{.NAME}} (Name);
+        \draw[->] (Person) to node {\texttt{.AGE}} (Age);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Record = Product = Limit}
+      
+      \medskip
+      \onslide<2->{
+      \begin{semiverbatim}\scriptsize
+data Person = Person
+  { name :: String
+  , age  :: Int }
+      \end{semiverbatim}
+      }
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item<3-> The record type is a cone over a discrete graph. The field selectors \texttt{.NAME} and \texttt{.AGE} are the coordinate projections.
+    \item<4-> \textbf{Declarative vs Imperative:} We define the type by its projections, not by the memory layout.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Colimits in Programming (Variants)}
+
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=1.5cm and 2.5cm, auto, >={stealth}]
+        \node (String) {\texttt{String}};
+        \node (Int) [below=of String] {\texttt{Int}};
+        \node (Either) [right=of String, yshift=-0.75cm] {\texttt{Either}};
+        
+        \draw[->] (String) to node [above] {\texttt{Left}} (Either);
+        \draw[->] (Int) to node [below] {\texttt{Right}} (Either);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Variant = Coproduct = Colimit}
+      
+      \medskip
+      \onslide<2->{
+      \begin{semiverbatim}\scriptsize
+data Either a b
+  = Left a
+  | Right b
+      \end{semiverbatim}
+      }
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item<3-> \textbf{Injections:} \texttt{Left} and \texttt{Right} map a specific type into the broader union.
+    \item<4-> \textbf{Universal Property:} When you write a \texttt{match} or \texttt{switch} statement, you are constructing the unique arrow \([f, g]\).
+    \item<5-> By forcing us to handle all cases, colimits ensure our programs are \textbf{total}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Part 3: Propositions as Types}
+
+  \centering
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Logic} & \textbf{Category Theory} & \textbf{Programming} \\
+    \midrule
+    \textbf{True} & Terminal Object (Limit) & \texttt{Unit} / \texttt{()} \\
+    \textbf{False} & Initial Object (Colimit) & \texttt{Void} \\
+    \midrule
+    \(A \land B\) (AND) & Product (Limit) & Record / Struct \\
+    \(A \lor B\) (OR) & Coproduct (Colimit) & Variant / Sum Type \\
+    \bottomrule
+  \end{tabular}
+  
+  \vspace{0.6cm}
+  
+  \begin{block}{Example: Conjunction Elimination (Limit)}
+    \textbf{Logic:} From \(A \land B\), we can prove \(A\). \\
+    \textbf{Category:} The projection map \(\pi_1 : A \times B \to A\). \\
+    \textbf{Programming:} \texttt{fst :: (a, b) -> a} (in Haskell/C++)
+  \end{block}
+
+  \vspace{0.4cm}
+  \onslide<2->{
+  \begin{alertblock}{Example: Disjunction Introduction (Colimit)}
+    \textbf{Logic:} From \(A\), we can prove \(A \lor B\). \\
+    \textbf{Category:} The injection map \(\iota_1 : A \to A + B\). \\
+    \textbf{Programming:} \texttt{Left :: a -> Either a b} (wrapping a value)
+  \end{alertblock}
+  }
+
+  \vspace{0.3cm}
+  \onslide<3->{
+  \centering
+  {\large \textbf{Limits are AND. Colimits are OR.}}
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Part 4: Computational Category Theory (Algorithms)}
+
+  \begin{block}{Programming Category Theory (Rydeheard \& Burstall)}
+    Because category theory is constructive, its proofs can be translated directly into executable algorithms (e.g., in ML).
+  \end{block}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item<2-> \textbf{Algorithmic Colimits:} A category with an initial object, coproducts, and coequalizers has \textit{all} finite colimits. We can program this recursively:
+  \end{itemize}
+
+  \begin{uncoverenv}<3->
+  \begin{semiverbatim}\scriptsize
+def compute_finite_colimit(diagram, category):
+    if diagram.edges.is_empty():
+        colimit = category.initial_object()
+        for obj in diagram.objects:
+            colimit = category.coproduct(colimit, obj)
+        return colimit
+    else:
+        edge = diagram.edges.pop()
+        partial = compute_finite_colimit(diagram, category)
+        return category.coequalizer(partial, edge)
+  \end{semiverbatim}
+  \end{uncoverenv}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Part 4: Computational Category Theory (Applications)}
+
+  \vspace{0.5cm}
+  \begin{itemize}
+    \item<1-> \textbf{Duality in Code:} To compute a limit, just reverse the arrows, run the colimit algorithm, and reverse the result.
+    
+    \vspace{0.6cm}
+    \item<2-> \textbf{Unification:} Term unification (in Prolog or type inference) is mathematically equivalent to computing a \textbf{coequalizer} in the category of substitutions.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{References \& Further Reading}
+
+  \begin{itemize}
+    
+    \vspace{0.4cm}
+    \item \textbf{David E. Rydeheard \& R. M. Burstall.} \textit{Computational Category Theory}. \\
+    {\footnotesize \color{gray} Functional programming in Standard ML, algorithmic colimits, and term unification.}
+    
+    \vspace{0.4cm}
+    \item \textbf{Brendan Fong \& David I. Spivak.} \textit{An Invitation to Applied Category Theory}. \\
+    {\footnotesize \color{gray} Applied systems, modeling database schemas as categories, and inner joins.}
+    
+    \vspace{0.4cm}
+    \item \textbf{Bartosz Milewski.} \textit{Category Theory for Programmers}. \\
+    {\footnotesize \color{gray} Interpreting categorical limits as record types and colimits as variant or sum types.}
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Discussion}
+  \centering
+  \Large
+  \textbf{Questions?}
 \end{frame}
 
 \end{document}
