@@ -221,8 +221,15 @@ WHERE  e.City = d.City
     \begin{column}{0.46\textwidth}
       \textbf{Special cases:}
       \begin{itemize}
-        \item $C = 1$: product.
-        \item $\cg{g}$ mono: inverse image $\cf{f}^{-1}(V)$.
+        \item $C = 1$: pullback is product.
+        \item $\cg{g}$ is mono: pullback is inverse image $\cf{f}^{-1}(V)$.
+
+          \[
+            \begin{tikzcd}[sep=small]
+              f^{-1}(V) \ar[r] \ar[d, >->] & V \ar[d, >->] \\
+              A \ar[r] & C
+            \end{tikzcd}
+          \]
       \end{itemize}
 
       \medskip
@@ -751,8 +758,8 @@ either _ g (Right y) = g y
       \begin{semiverbatim}\small
 describe :: Either String Int -> String
 describe = either
-  (\s -> "String: " ++ s)
-  (\n -> "Number: " ++ show n)
+  (\\s -> "String: " ++ s)
+  (\\n -> "Number: " ++ show n)
       \end{semiverbatim}
     \end{column}
   \end{columns}
@@ -784,7 +791,7 @@ describe = either
       \textbf{Programming:} \texttt{fst :: (a, b) -> a} (in Haskell/C++)
     \end{block}
     \onslide<2>
-    \begin{block}{Example: Disjunction Introduction (Colimit)}
+    \begin{alertblock}{Example: Disjunction Introduction (Colimit)}
       \textbf{Logic:} From \(A\), we can prove \(A \lor B\). \\
       \textbf{Category:} The injection map \(\iota_1 : A \to A + B\). \\
       \textbf{Programming:} \texttt{Left :: a -> Either a b} (wrapping a value)
