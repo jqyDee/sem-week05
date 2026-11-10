@@ -598,41 +598,43 @@ WHERE  e.City = d.City
 \frametitle{Limits in Databases: The Inner Join}
 
   \begin{columns}[T]
-    \begin{column}{0.45\textwidth}
+    \begin{column}{0.48\textwidth}
       \centering
-      \begin{tikzcd}[column sep=2cm, row sep=1.5cm]
-        |[visible on=<2->]| P \ar[r, "p_2", visible on=<2->] \ar[d, "p_1"', visible on=<2->]
-          & \text{Department} \ar[d, "g"'] \\
-        \text{Employee} \ar[r, "f"'] & \text{City}
+      \begin{tikzcd}[column sep=1.2cm, row sep=1.0cm]
+        |[visible on=<3->]| Z \ar[drr, bend left=20, "z_2", visible on=<3->]
+          \ar[ddr, bend right=20, "z_1"', visible on=<3->]
+          \ar[dr, dashed, green, "u", visible on=<3->] & & \\
+        & |[visible on=<2->]| P \ar[r, "p_2", visible on=<2->] \ar[d, "p_1"', visible on=<2->]
+          & \text{Department} \ar[d, "\text{id}"] \\
+        & \text{Employee} \ar[r, "\text{WorksIn}"'] & \text{Department}
       \end{tikzcd}
       
       \vspace{0.3cm}
       {\footnotesize \textbf{$P$:} Result Set (Joined Table)}
-    \end{column}
-    \begin{column}{0.55\textwidth}
-      \textbf{A pullback models an SQL Inner Join.}
       
-      \medskip
-      \begin{itemize}
-        \item<3-> \textbf{The Diagram:} A cospan (corner). Two tables with a
-          shared attribute (City).
-        \item<4-> \textbf{The Limit ($P$):} The set of pairs $(e, d)$ such that
-          $f(e) = g(d)$.
-        \item<5-> \textbf{Universal Property:} Guarantees the result contains
-          \textit{all} matching rows and \textit{no} duplicates. 
-      \end{itemize}
-      
-      \vspace{0.3cm}
       \onslide<6->{
       \begin{semiverbatim}\scriptsize
 SELECT *
 FROM   Employee e, Department d
-WHERE  e.City = d.City
+WHERE  e.WorksIn = d.ID
       \end{semiverbatim}
       }
     \end{column}
+    \begin{column}{0.52\textwidth}
+      \textbf{A pullback models an SQL Inner Join.}
+      
+      \medskip
+      \begin{itemize}
+        \item<3-> \textbf{The Diagram:} A cospan (corner). Two tables joined via a foreign key.
+        \item<4-> \textbf{The Limit ($P$):} The set of pairs $(e, d)$ such that $\text{WorksIn}(e) = \text{id}(d)$.
+        \item<5-> \textbf{Universal Property:} For any candidate table $Z$ with mappings $z_1, z_2$, there is a unique filter $u: Z \to P$. Guarantees \textit{all} matching rows and \textit{no} duplicates. 
+      \end{itemize}
+      
+      \vspace{0.3cm}
+    \end{column}
   \end{columns}
 \end{frame}
+
 
 \begin{frame}[fragile]
 \frametitle{Part 2: Limits in Programming (Records)}
@@ -641,12 +643,12 @@ WHERE  e.City = d.City
     \begin{column}{0.5\textwidth}
       \centering
       \begin{tikzpicture}[node distance=1.5cm and 1.5cm, auto, >={stealth}]
-        \node (Person) {\texttt{PERSON}};
+        \node (Person) {\texttt{PERSON} (Limit)};
         \node (Name) [below left=of Person] {\texttt{String}};
         \node (Age) [below right=of Person] {\texttt{Integer}};
         
-        \draw[->] (Person) to node [swap] {\texttt{.NAME}} (Name);
-        \draw[->] (Person) to node {\texttt{.AGE}} (Age);
+        \draw[->] (Person) to node [swap] {\texttt{.name}} (Name);
+        \draw[->] (Person) to node {\texttt{.age}} (Age);
       \end{tikzpicture}
     \end{column}
     \begin{column}{0.5\textwidth}
@@ -665,16 +667,14 @@ data Person = Person { name :: String
 
   \vspace{0.3cm}
   \begin{itemize}
-    \item<3-> The record type is a cone over a discrete graph. The field
-      selectors \texttt{.NAME} and \texttt{.AGE} are the coordinate
-      projections.
-    \item<4-> \textbf{Declarative vs Imperative:} We define the type by its
-      projections, not by the memory layout.
+    \item<3-> \textbf{Objects as Types:} The components (\texttt{String}, \texttt{Int}) and the record itself (\texttt{PERSON}) are just objects.
+    \item<4-> \textbf{Arrows as Getters:} The field selectors (\texttt{.name}, \texttt{.age}) are literally the projection arrows of the limit.
+    \item<5-> \textbf{Declarative Interface:} Category theory defines the type strictly by its external arrows (API), ignoring how bytes are laid out in memory.
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Colimits in Programming (Variants)}
+\begin{frame}[fragile]
+\frametitle{Part 2: Colimits in Programming (Variants)}
 
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
@@ -682,7 +682,7 @@ data Person = Person { name :: String
       \begin{tikzpicture}[node distance=1.5cm and 2.5cm, auto, >={stealth}]
         \node (String) {\texttt{String}};
         \node (Int) [below=of String] {\texttt{Int}};
-        \node (Either) [right=of String, yshift=-0.75cm] {\texttt{Either}};
+        \node (Either) [right=of String, yshift=-0.75cm] {\texttt{Either} (Colimit)};
         
         \draw[->] (String) to node [above] {\texttt{Left}} (Either);
         \draw[->] (Int) to node [below] {\texttt{Right}} (Either);
@@ -692,26 +692,71 @@ data Person = Person { name :: String
       \textbf{Variant = Coproduct = Colimit}
       
       \medskip
-      \onslide<2->{
+      \begin{uncoverenv}<2->
       \begin{semiverbatim}\scriptsize
 data Either a b
   = Left a
   | Right b
       \end{semiverbatim}
-      }
+      \end{uncoverenv}
     \end{column}
   \end{columns}
 
   \vspace{0.3cm}
   \begin{itemize}
-    \item<3-> \textbf{Injections:} \texttt{Left} and \texttt{Right} map a
-      specific type into the broader union.
-    \item<4-> \textbf{Universal Property:} When you write a \texttt{match} or
-      \texttt{switch} statement, you are constructing the unique arrow \([f,
-      g]\).
-    \item<5-> By forcing us to handle all cases, colimits ensure our programs
-      are \textbf{total}.
+    \item<3-> \textbf{Arrows as Constructors:} The functions \texttt{Left} and \texttt{Right} are the injection arrows. They wrap a specific type into the broader union.
+    \item<4-> \textbf{Universal Property as Pattern Matching:} When you write a \texttt{match} or \texttt{switch} statement, you are actively satisfying the colimit's universal property.
+    \item<5-> \textbf{Compiler-Enforced Totality:} The math demands a path for every case. The compiler enforces this by throwing an error if you forget to handle a variant.
   \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Part 2: Colimits in Programming (Haskell Example)}
+
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      {\color{uibkorange}\textbf{Coproduct + injections}}
+
+      \begin{semiverbatim}\small
+data Either a b
+  = Left  a
+  | Right b
+
+-- Left  :: a -> Either a b
+-- Right :: b -> Either a b
+      \end{semiverbatim}
+
+      \vspace{0.5em}
+      {\color{uibkorange}\textbf{Totality (compiler-enforced)}}
+
+      \begin{semiverbatim}\small
+f (Left s) = ...
+-- warning: [-Wincomplete-patterns]
+      \end{semiverbatim}
+    \end{column}
+
+    \begin{column}{0.6\textwidth}
+      {\color{uibkorange}\textbf{The unique morphism out}}
+
+      \begin{semiverbatim}\small
+either :: (a -> c) -> (b -> c)
+       -> Either a b -> c
+either f _ (Left  x) = f x
+either _ g (Right y) = g y
+      \end{semiverbatim}
+
+      \vspace{0.5em}
+      {\color{uibkorange}\textbf{Usage: the UMP, applied}}
+
+      \begin{semiverbatim}\small
+describe :: Either String Int -> String
+describe = either
+  (\s -> "String: " ++ s)
+  (\n -> "Number: " ++ show n)
+      \end{semiverbatim}
+    \end{column}
+  \end{columns}
+
 \end{frame}
 
 \begin{frame}
@@ -739,7 +784,7 @@ data Either a b
       \textbf{Programming:} \texttt{fst :: (a, b) -> a} (in Haskell/C++)
     \end{block}
     \onslide<2>
-    \begin{alertblock}{Example: Disjunction Introduction (Colimit)}
+    \begin{block}{Example: Disjunction Introduction (Colimit)}
       \textbf{Logic:} From \(A\), we can prove \(A \lor B\). \\
       \textbf{Category:} The injection map \(\iota_1 : A \to A + B\). \\
       \textbf{Programming:} \texttt{Left :: a -> Either a b} (wrapping a value)
@@ -752,7 +797,7 @@ data Either a b
   \end{overprint}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
 \frametitle{Part 4: Computational Category Theory (Algorithms)}
 
   \begin{block}{Programming Category Theory (Rydeheard \& Burstall)}
@@ -763,39 +808,12 @@ data Either a b
   \vspace{0.3cm}
   \begin{itemize}
     \item<2-> \textbf{Algorithmic Colimits:} A category with an initial object,
-      coproducts, and coequalizers has \textit{all} finite colimits. We can
-      program this recursively:
-  \end{itemize}
-
-  \begin{uncoverenv}<3->
-  \begin{semiverbatim}\scriptsize
-def compute_finite_colimit(diagram, category):
-    if diagram.edges.is_empty():
-        colimit = category.initial_object()
-        for obj in diagram.objects:
-            colimit = category.coproduct(colimit, obj)
-        return colimit
-    else:
-        edge = diagram.edges.pop()
-        partial = compute_finite_colimit(diagram, category)
-        return category.coequalizer(partial, edge)
-  \end{semiverbatim}
-  \end{uncoverenv}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Part 4: Computational Category Theory (Applications)}
-
-  \vspace{0.5cm}
-  \begin{itemize}
-    \item<1-> \textbf{Duality in Code:} To compute a limit, just reverse the
+      coproducts, and coequalizers has \textit{all} finite colimits.
+    \item<3-> \textbf{The recipe:} start at the initial object and glue the
+      diagram's objects together with coproducts --- then take one
+      coequalizer per edge to enforce that the diagram commutes.
+    \item<4-> \textbf{Duality in Code:} To compute a limit, just reverse the
       arrows, run the colimit algorithm, and reverse the result.
-    
-    \vspace{0.6cm}
-    \item<2-> \textbf{Unification:} Term unification (in Prolog or type
-      inference) is mathematically equivalent to computing a
-      \textbf{coequalizer} in the category of substitutions.
   \end{itemize}
 
 \end{frame}
