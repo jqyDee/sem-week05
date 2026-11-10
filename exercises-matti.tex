@@ -318,54 +318,58 @@ map defined on all of $A$, with domain $1_A : A \rightarrowtail A$.
 \end{itemize}
 \hfill$\square$
 
-\section{Exercise 4}
+\section{Exercise 4: Sequence of Posets}
 
-Exercise 12 Chapter 05: \textit{
-  Consider the sequence of posets $[0] \rightarrow [1] \rightarrow [2] \rightarrow \dots$, where
-  $$[n] = \{0 \leq \dots \leq n\},$$
-  and the arrows $[n] \rightarrow [n + 1]$ are the evident inclusions.
-  Determine the limit and colimit posets of this sequence.
-}
+\textbf{Exercise 12 Chapter 05:} Consider the sequence of posets $[0] \to [1] \to [2] \to \dots$, where 
+\[ [n] = \{0 \leq \dots \leq n\}, \]
+and the arrows $i_n : [n] \to [n + 1]$ are the evident inclusions $k \mapsto k$. Determine the limit and colimit posets of this sequence.
 
-\medskip
-\noindent\textbf{Solution.}
+\vspace{1em}
+\noindent\textbf{Solution:}
 
-Write $i_n : [n] \to [n+1]$, $k \mapsto k$. In $\mathbf{Pos}$ we compute the
-(co)limit on underlying sets and then equip it with the order that makes the
-legs monotone.
+In the category of posets ($\mathbf{Pos}$), we can compute the (co)limit on the underlying sets and then equip the result with the order that makes the respective cone/cocone legs monotone.
 
-\medskip
-\noindent\textbf{Colimit: $\omega = (\mathbb{N}, \leq)$.}
-The union of all $[n]$ is $\mathbb{N}$, and $k \leq l$ holds in $[n]$ for any
-$n \geq l$, so the order is the usual one. The legs are the inclusions
-$c_n : [n] \to \mathbb{N}$; they satisfy $c_{n+1} i_n = c_n$.
-Let $q_n : [n] \to Q$ be a cocone, i.e.\ $q_{n+1} i_n = q_n$. Define
+\subsection*{Limit ($\varprojlim$)}
+
+A cone over this sequence consists of a test poset $Z$ and monotone maps $p_n: Z \to [n]$ that commute with the inclusions, meaning $i_n \circ p_n = p_{n+1}$. 
+
+Since $p_0: Z \to [0]$ must map every element to $0$ (because $0$ is the only element in $[0]$), and every subsequent $p_n$ must equal the inclusion of $[0]$ into $[n]$ composed with $p_0$, all $p_n$ must be the constant zero map.
 \[
-  u : \mathbb{N} \to Q, \qquad u(k) := q_n(k) \quad \text{for any } n \geq k .
+\begin{tikzcd}
+& Z \arrow[dl, "p_0"'] \arrow[d, "p_1"] \arrow[dr, "p_2"] & \\
+{[0]} \arrow[r, hook, "i_0"'] & {[1]} \arrow[r, hook, "i_1"'] & {[2]} \arrow[r, hook, "i_2"'] & \dots
+\end{tikzcd}
+\]
+Alternatively, calculating the limit directly on the underlying sets, an element of the limit is a family $(x_n)_{n \in \mathbb{N}}$ with $x_n \in [n]$ and $i_n(x_n) = x_{n+1}$. This forces $x_{n+1} = x_n$, meaning $x_n = x_0 \in [0] = \{0\}$ for all $n$. 
+
+Thus, the limit is the terminal poset $[0]$ itself, and the unique mediating map from any cone $Z$ to the limit is exactly $p_0$.
+
+\subsection*{Colimit ($\varinjlim$)}
+
+A cocone consists of a target poset $Q$ and monotone maps $q_n: [n] \to Q$ commuting with the inclusions, i.e., $q_{n+1} \circ i_n = q_n$.
+\[
+\begin{tikzcd}
+{[0]} \arrow[r, hook, "i_0"] \arrow[dr, "q_0"'] & {[1]} \arrow[r, hook, "i_1"] \arrow[d, "q_1"] & {[2]} \arrow[r, hook, "i_2"] \arrow[dl, "q_2"] & \dots \\
+& Q & &
+\end{tikzcd}
+\]
+Because $q_m$ is exactly the restriction of $q_n$ for any $m < n$, these maps collectively define a single, infinitely long monotone function from the union of all $[n]$. 
+
+We claim the initial such cocone is the union of all the sets $[n]$ equipped with the standard ordering. This is the poset of natural numbers $\omega = (\mathbb{N}, \leq)$, with the legs being the evident inclusions $c_n: [n] \to \mathbb{N}$. 
+
+To verify the Universal Mapping Property, let $q_n: [n] \to Q$ be another cocone. We define the mediating map $u: \mathbb{N} \to Q$ by:
+\[
+  u(k) := q_n(k) \quad \text{for any } n \geq k.
 \]
 \begin{itemize}
-  \item \emph{Well defined:} by compatibility, all $q_n$ with $n \geq k$ agree on $k$.
-  \item \emph{Monotone:} for $k \leq l$ pick $n \geq l$; then
-    $u(k) = q_n(k) \leq q_n(l) = u(l)$.
-  \item \emph{Factors and unique:} $u c_n = q_n$ by definition, and every
-    $k$ lies in some $[n]$, so $u$ is forced.
+    \item \textbf{Well-defined:} By the compatibility of the cocone ($q_{n+1} \circ i_n = q_n$), all $q_n$ with $n \geq k$ agree on the value of $k$.
+    \item \textbf{Monotone:} For $k \leq l$, pick an $n \geq l$. Then $u(k) = q_n(k) \leq q_n(l) = u(l)$ because $q_n$ is a monotone map.
+    \item \textbf{Unique Factorization:} We have $u \circ c_n = q_n$ by definition. Since every $k \in \mathbb{N}$ lies in some $[n]$, this definition of $u$ is strictly forced, making it unique.
 \end{itemize}
-Note that $\omega$ is none of the $[n]$: it has no top element.
+Thus, the colimit is $\omega$.
 
-\medskip
-\noindent\textbf{Limit: $[0] = 1$.}
-An element of the limit is a family $(x_n)_n$ with $x_n \in [n]$ and
-$i_n(x_n) = x_{n+1}$, i.e.\ $x_{n+1} = x_n$. Hence $x_n = x_0 \in [0] = \{0\}$
-for all $n$, and the limit is the one-point poset with legs
-$l_n : [0] \to [n]$, $0 \mapsto 0$.
-Directly: a cone $a_n : L \to [n]$ satisfies $a_{n+1} = i_n a_n$, so it is
-determined by $a_0 : L \to [0]$, which is the unique map to the terminal
-object. So $[0]$ is a limit.
-
-\medskip
-\noindent\textbf{Why the asymmetry.} The index category $\omega$ has an
-initial object $0$, so the limit is just the value $[0]$ there. It has no
-terminal object, so the colimit is a new object, $\omega$.
-\hfill$\square$
+\vspace{1em}
+\noindent\textbf{Note on the Asymmetry:} 
+The index category for this sequence is $\omega$, which has an initial object ($0$). Therefore, the limit evaluates trivially to the value at that initial object, $[0]$. However, because $\omega$ has no terminal object, the colimit builds a completely new object, the infinite poset $\omega$.
 
 \end{document}
