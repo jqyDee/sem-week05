@@ -35,31 +35,36 @@ in a category $\mathbf{C}$ is the same thing as their product in the slice
 category $\mathbf{C}/X$.
 }
 
-Objects of $\mathbf{C}/X$ are $(A,f)$ with $f : A \to X$; arrows
+\medskip
+
+Objects of $\mathbf{C}/X$ are of shape $(A,f)$ with $f : A \to X$. Arrows
 $h : (A,f) \to (B,g)$ are $h : A \to B$ with $g h = f$.
 
-\textbf{Claim.} $(P,p_1,p_2)$ is a pullback of $f, g$ iff
+\textbf{Claim.} $(P,p_1,p_2)$ is a pullback of $f, g$ $\Leftrightarrow$
 $\bigl((P,r),p_1,p_2\bigr)$ is a product of $(A,f), (B,g)$ in $\mathbf{C}/X$,
-where $r = f p_1 = g p_2$ (forced, since $p_1, p_2$ must be slice arrows).
+where $r = f p_1 = g p_2$. This is forced, since $p_1, p_2$ must be slice
+arrows.
 
 \textbf{Key fact ($\ast$).} If $f z_1 = s$, then every $v : Z \to P$ with
 $p_1 v = z_1$ is a slice arrow $(Z,s) \to (P,r)$:
 $r v = f p_1 v = f z_1 = s$.
 
-\subsection*{Pullback $\Rightarrow$ product in $\mathbf{C}/X$}
+\textbf{Solution.} We solve this by checking in either direction.
 
-Let $z_1 : (Z,s) \to (A,f)$, $z_2 : (Z,s) \to (B,g)$ be slice arrows, so
-$f z_1 = s = g z_2$. The pullback gives a unique $u : Z \to P$ with
-$p_i u = z_i$. By ($\ast$), $u$ is a slice arrow. Any other slice arrow
-with $p_i u' = z_i$ is an arrow of $\mathbf{C}$, so $u' = u$.
+\begin{itemize}
+  \item ($\Rightarrow$)
+    Let $z_1 : (Z,s) \to (A,f)$, $z_2 : (Z,s) \to (B,g)$ be slice arrows, so
+    $f z_1 = s = g z_2$. The pullback gives a unique $u : Z \to P$ with
+    $p_i u = z_i$. By ($\ast$), $u$ is a slice arrow. Any other slice arrow
+    with $p_i u' = z_i$ is an arrow of $\mathbf{C}$, so $u' = u$.
+  \item ($\Leftarrow$)
+    The square commutes: $f p_1 = r = g p_2$. Let $f z_1 = g z_2$ in
+    $\mathbf{C}$ and put $s := f z_1$. Then $z_1, z_2$ are slice arrows out of
+    $(Z,s)$, and the product gives a unique slice arrow $u$ with $p_i u = z_i$.
+    Any $u' : Z \to P$ in $\mathbf{C}$ with $p_i u' = z_i$ is a slice arrow by
+    ($\ast$), so $u' = u$. \hfill$\square$
+\end{itemize}
 
-\subsection*{Product in $\mathbf{C}/X$ $\Rightarrow$ Pullback}
-
-The square commutes: $f p_1 = r = g p_2$. Let $f z_1 = g z_2$ in
-$\mathbf{C}$ and put $s := f z_1$. Then $z_1, z_2$ are slice arrows out of
-$(Z,s)$, and the product gives a unique slice arrow $u$ with $p_i u = z_i$.
-Any $u' : Z \to P$ in $\mathbf{C}$ with $p_i u' = z_i$ is a slice arrow by
-($\ast$), so $u' = u$. \hfill$\square$
 
 \section{Exercise 2}
 
@@ -67,9 +72,9 @@ Exercise 2 Chapter 05: \textit{
   Let $\mathbf{C}$ be a category with pullbacks.
 }
 
-We use Exercise~1 (pullback over $X$ $=$ product in $\mathbf{C}/X$) and the
-\textbf{two-pullbacks lemma}: if in two adjacent commuting squares the right
-one is a pullback, then the left one is a pullback iff the outer rectangle is.
+We use Exercise~1 and the \textbf{two-pullbacks lemma}: if in two adjacent
+commuting squares the right one is a pullback, then the left one is a pullback
+iff the outer rectangle is.
 
 \subsection*{(a)}
 
@@ -84,22 +89,34 @@ and only if the diagram below is a pullback.}
 \textit{Thus, as an object $\mathbf{C}/X$, $m$ is monic iff $m \times m \cong m$.}
 
 \medskip
-\noindent\textbf{Solution.}
 
-($\Rightarrow$) Let $m z_1 = m z_2$. Since $m$ is monic, $z_1 = z_2$, so
-$u := z_1$ is the unique arrow with $1_M u = z_1$, $1_M u = z_2$.
+\textbf{Claim.} arrow $m: M \to X$ in $\mathbf{C}$ is monic
+$\Leftrightarrow$ the diagram above is a pullback.
 
-($\Leftarrow$) Let $m z_1 = m z_2$. The pullback gives $u$ with
-$z_1 = 1_M u = z_2$. So $m$ is monic.
+\textbf{Solution.} We solve this by checking in either direction:
 
-By Exercise~1, $m$ is monic iff $\bigl((M,m),1_M,1_M\bigr)$ is a product in
-$\mathbf{C}/X$, i.e.\ the diagonal $\langle 1_M,1_M\rangle : m \to m \times m$
-is an iso. (The iso must be the diagonal: in $\mathbf{Sets}/X$ any $m$ with
-infinite fibres has $m \times m \cong m$ without being monic.)
+\begin{itemize}
+  \item($\Rightarrow$) Let $m z_1 = m z_2$. Since $m$ is monic, $z_1 = z_2$, so
+    $u := z_1$ is the unique arrow with $1_M u = z_1$, $1_M u = z_2$.
+  \item ($\Leftarrow$) Let $m z_1 = m z_2$. The pullback gives $u$ with $z_1 =
+    1_M u = z_2$. So $m$ is monic.
+\end{itemize}
+
+\medskip
+\textbf{As object of $\mathbf{C}/X$.} In $\mathbf{C}/X$ the arrow $m$ is the
+object $(M,m)$, and $1_M$ is a slice arrow $(M,m) \to (M,m)$. By Exercise~1,
+the square in (a) is a pullback iff $(M,m)$, with both projections $1_M$, is a
+product of $(M,m)$ with itself in $\mathbf{C}/X$. This is what $m \times m
+\cong m$ means: $m$ itself, with projections $1_M, 1_M$, is the product $m
+\times m$. (Since products are unique up to iso, any other product of $m$ with
+itself is then isomorphic to $m$, via $\langle 1_M, 1_M \rangle$.)
+
+\pagebreak
 
 \subsection*{(b)}
 
-\textit{Show that the pullback along an arrow $f: Y \rightarrow X$ of a pullback square over $X$,}
+\textit{Show that the pullback along an arrow $f: Y \rightarrow X$ of a
+pullback square over $X$,}
 \[
   \begin{tikzcd}
     A \times_{X} B \ar[r] \ar[d] & B \ar[d] \\
@@ -111,40 +128,43 @@ two-pullbacks lemma.) Conclude that the pullback functor $f^{*}$ preserves
 products.}
 
 \medskip
-\noindent\textbf{Solution.}
 
-Let $(P,p_1,p_2)$ be a pullback of $a : A \to X$, $b : B \to X$, and
-$r := a p_1 = b p_2$. Pull back $a, b, r$ along $f$ to get
-$a' : A' \to Y$, $b' : B' \to Y$, $r' : P' \to Y$ with top arrows
-$f_A, f_B, f_P$. The induced $p_1' : P' \to A'$ satisfies $a' p_1' = r'$ and
-$f_A p_1' = p_1 f_P$ (it exists since $a(p_1 f_P) = r f_P = f r'$);
-similarly $p_2'$. So $a' p_1' = b' p_2'$.
+\textbf{Solution.} Let $(P,p_1,p_2)$ be a pullback of $a : A \to X$, $b : B \to
+X$, and $r := a p_1 = b p_2$. Pull back $a, b, r$ along $f$ to get $a' : A' \to
+Y$, $b' : B' \to Y$, $r' : P' \to Y$ with top arrows $f_A, f_B, f_P$. The
+induced $p_1' : P' \to A'$ satisfies $a' p_1' = r'$ and $f_A p_1' = p_1 f_P$
+(it exists since $a(p_1 f_P) = r f_P = f r'$). $p_2'$ is constructed the same
+way. So $a' p_1' = b' p_2'$.
 
-\textbf{Step 1.} In
-\[
-  \begin{tikzcd}[sep=large]
-    P' \ar[r, "p_1'"] \ar[d, "f_P"'] & A' \ar[r, "a'"] \ar[d, "f_A"] & Y \ar[d, "f"] \\
-    P \ar[r, "p_1"'] & A \ar[r, "a"'] & X
-  \end{tikzcd}
-\]
-the right square and the outer rectangle (the square defining $P'$) are
-pullbacks, so the left square is a pullback.
+\begin{enumerate}
+  \item In
+    \[
+      \begin{tikzcd}[sep=large]
+        P' \ar[r, "p_1'"] \ar[d, "f_P"'] & A' \ar[r, "a'"] \ar[d, "f_A"] & Y \ar[d, "f"] \\
+        P \ar[r, "p_1"'] & A \ar[r, "a"'] & X
+      \end{tikzcd}
+    \]
+    the right square and the outer rectangle are pullbacks, so the left square
+    is a pullback, by the two-pullback lemma.
+  \item In
+    \[
+      \begin{tikzcd}[sep=large]
+        P' \ar[r, "p_2'"] \ar[d, "p_1'"'] & B' \ar[r, "f_B"] \ar[d, "b'"] & B \ar[d, "b"] \\
+        A' \ar[r, "a'"'] & Y \ar[r, "f"'] & X
+      \end{tikzcd}
+    \]
+    the right square is a pullback. The outer rectangle has the same arrows
+    ($f_B p_2' = p_2 f_P$, $f a' = a f_A$) as the left square of Step~1,
+    transposed, pasted with the original pullback, so it is a pullback. Meaning
+    the left square is a pullback: $P' \cong A' \times_Y B'$.
+\end{enumerate}
 
-\textbf{Step 2.} In
-\[
-  \begin{tikzcd}[sep=large]
-    P' \ar[r, "p_2'"] \ar[d, "p_1'"'] & B' \ar[r, "f_B"] \ar[d, "b'"] & B \ar[d, "b"] \\
-    A' \ar[r, "a'"'] & Y \ar[r, "f"'] & X
-  \end{tikzcd}
-\]
-the right square is a pullback. The outer rectangle has the same arrows
-($f_B p_2' = p_2 f_P$, $f a' = a f_A$) as the left square of Step~1,
-transposed, pasted with the original pullback, so it is a pullback. Hence the left square is a
-pullback: $P' \cong A' \times_Y B'$.
-
-\textbf{$f^*$ preserves products.} $f^*p_i = p_i'$ by definition of $f^*$ on
-arrows. By Exercise~1, products in $\mathbf{C}/X$ are pullbacks over $X$;
-these go to pullbacks over $Y$, i.e.\ products in $\mathbf{C}/Y$.
+\textbf{$f^*$ preserves products.} $f^* : \mathbf{C}/X \to \mathbf{C}/Y$ sends
+$(A,a)$ to $(A',a')$ and a slice arrow to the arrow induced by the pullback,
+exactly as $p_1'$ above. So $f^*(P,r) = (P',r')$ and $f^*p_i = p_i'$. By
+Exercise~1, $(P,p_1,p_2)$ is the product $(A,a) \times (B,b)$ in
+$\mathbf{C}/X$ and  its image $(P',p_1',p_2')$ is a pullback over $Y$.
+Therefore the product $f^*(A,a) \times f^*(B,b)$ is in $\mathbf{C}/Y$.
 
 \subsection*{(c)}
 
@@ -158,13 +178,36 @@ these go to pullbacks over $Y$, i.e.\ products in $\mathbf{C}/Y$.
 \textit{if $m$ is monic, then so is $m'$.}
 
 \medskip
-\noindent\textbf{Solution.}
+\textbf{Solution.} We use (a) to turn ``monic'' into a pullback square, (b) to
+move that square along $f$, and (a) again to turn it back into ``monic''.
 
-Take the given square as $f^*(M,m) = (M',m')$ (pullbacks are unique up to
-iso). By (a), $(M,m)$ with legs $1_M, 1_M$ is a product in $\mathbf{C}/A$.
-By (b), $(M',m')$ with legs $f^*1_M = 1_{M'}$ ($f^*$ is a functor) is a
-product in $\mathbf{C}/A'$. By (a), $m'$ is monic.
-\hfill$\square$
+\begin{enumerate}
+  \item \textbf{(by (a)).} Since $m$ is monic, the square
+    \[
+      \begin{tikzcd}
+        M \ar[r, "1_M"] \ar[d, "1_M"'] & M \ar[d, "m"] \\
+        M \ar[r, "m"'] & A
+      \end{tikzcd}
+    \]
+    is a pullback.
+  \item \textbf{(by (b)).} Pull this square back along $f : A' \to A$. Every
+    corner $M$ lies over $A$ via $m$ (the top left one via $m 1_M = m$), and we
+    may choose its pullback along $f$ to be the given square, so it becomes
+    $M'$. The corner $A$ becomes $A'$. By (b) the resulting square
+    \[
+      \begin{tikzcd}
+        M' \ar[r, "p_2'"] \ar[d, "p_1'"'] & M' \ar[d, "m'"] \\
+        M' \ar[r, "m'"'] & A'
+      \end{tikzcd}
+    \]
+    is a pullback.
+  \item \textbf{(the legs are identities).} By construction, $p_1'$ is the
+    unique arrow $x : M' \to M'$ with $m' x = m'$ and $g x = g$ (UMP of the
+    given square). Since $1_{M'}$ satisfies both equations, $p_1' = 1_{M'}$.
+    Likewise $p_2' = 1_{M'}$.
+  \item \textbf{(by (a)).} So the square of Step 2 is exactly the square of (a)
+    for $m'$, and it is a pullback. By (a), $m'$ is monic. \hfill$\square$
+\end{enumerate}
 
 \section{Exercise 3}
 
@@ -203,59 +246,77 @@ Exercise 8 Chapter 05: \textit{
 }
 
 \medskip
-\noindent\textbf{Solution.}
+\textbf{Solution.} A representative of $f : A \to B$ is a pair $(m, |f|)$ with
+a mono $m : U_f \rightarrowtail A$ and $|f| : U_f \to B$. Two pairs are
+equivalent, $(m,|f|) \sim (m',|f|')$, iff there is an iso $i : U_f \to U_f'$
+with $m' i = m$ and $|f|' i = |f|$. This is needed because pullbacks are only
+unique up to iso: it makes composition well defined, and all equalities below
+(identities, associativity, functor) hold as equivalence classes.
 
-A representative of $f : A \to B$ is a pair $(m, |f|)$ with a mono
-$m : U_f \rightarrowtail A$ and $|f| : U_f \to B$. Two pairs are equivalent,
-$(m,|f|) \sim (m',|f|')$, iff there is an iso $i : U_f \to U_f'$ with
-$m' i = m$ and $|f|' i = |f|$. (In $\mathbf{Sets}$: same subset, same rule.)
-
-\medskip
-\noindent\textbf{Composition.} Pull back $U_g \rightarrowtail B$ along $|f|$
-to get $V = |f|^*(U_g)$ with $n : V \to U_f$ and $v : V \to U_g$. Then
-$g \circ f = (|g| v,\ V \rightarrowtail U_f \rightarrowtail A)$.
 \begin{itemize}
-  \item \emph{Domain is a subobject:} $n$ is a pullback of a mono, hence monic
-    (Exercise~2(c)), and a composite of monos is monic.
-  \item \emph{Well defined:} pullbacks are unique up to iso, and changing a
-    representative by an iso changes the result only by an iso commuting with
-    all arrows. So the class of $g \circ f$ does not depend on choices.
+  \item \textbf{Composition.} Pull back $U_g \rightarrowtail B$ along $|f|$ to
+    get $V = |f|^*(U_g)$ with $n : V \to U_f$ and $v : V \to U_g$. Then $g
+    \circ f = (|g| v,\ V \rightarrowtail U_f \rightarrowtail A)$.
+    \begin{itemize}
+      \item \emph{Domain is a subobject:} $n$ is a pullback of a mono, hence monic
+        (Exercise~2(c)), and a composite of monos is monic.
+      \item \emph{Well defined:} pullbacks are unique up to iso, and changing a
+        representative by an iso changes the result only by an iso commuting with
+        all arrows. So the class of $g \circ f$ does not depend on choices.
+    \end{itemize}
+  \item \textbf{Identities.} $1_A = (1_A, A)$. Pulling back along an identity,
+    or pulling back an identity, gives the same object back. Meaning $f \circ 1_A
+    = f$ and $1_B \circ f = (1_B |f|, U_f) = f$.
+  \item \textbf{Associativity.} Let $h : C \to D$ be a third partial map, and
+    let $T = |g|^*(U_h)$ be the domain of $h \circ g$. Pull back $T \to U_g$
+    along $v$ to get $W$:
+    \[
+      \begin{tikzcd}[sep=large]
+        W \ar[r] \ar[d] & T \ar[r] \ar[d] & U_h \ar[r, "|h|"] \ar[d, tail] & D \\
+        V \ar[r, "v"] \ar[d, "n"'] & U_g \ar[r, "|g|"] \ar[d, tail] & C & \\
+        U_f \ar[r, "|f|"'] \ar[d, tail] & B & & \\
+        A & & &
+      \end{tikzcd}
+    \]
+    All three squares are pullbacks. By the two-pullbacks lemma:
+    \begin{itemize}
+      \item pasting the top-left square with the one to its right shows that
+        $W$ is the pullback of $U_h$ along $|g| v = |g \circ f|$, i.e.\ the domain
+        of $h \circ (g \circ f)$.
+      \item pasting it with the one below shows that $W$ is the pullback of
+        $T \rightarrowtail U_g \rightarrowtail B$ along $|f|$, i.e.\ the domain of
+        $(h \circ g) \circ f$.
+    \end{itemize}
+    Btivity,posites are $W \to V \to U_f \rightarrowtail A$ with
+    $W \to T \to U_h \to D$, so they are equal.
 \end{itemize}
 
-\noindent\textbf{Identities.} $1_A = (1_A, A)$. Pulling back along an identity,
-or pulling back an identity, gives the same object back. Hence
-$f \circ 1_A = f$ and $1_B \circ f = (1_B |f|, U_f) = f$.
-
-\medskip
-\noindent\textbf{Associativity.} Let $h : C \to D$ be a third partial map, and
-let $T = |g|^*(U_h)$ be the domain of $h \circ g$. Pull back $T \to U_g$
-along $v$ to get $W$:
-\[
-  \begin{tikzcd}[sep=large]
-    W \ar[r] \ar[d] & T \ar[r] \ar[d] & U_h \ar[r, "|h|"] \ar[d, tail] & D \\
-    V \ar[r, "v"] \ar[d, "n"'] & U_g \ar[r, "|g|"] \ar[d, tail] & C & \\
-    U_f \ar[r, "|f|"'] \ar[d, tail] & B & & \\
-    A & & &
-  \end{tikzcd}
-\]
-All three squares are pullbacks. By the two-pullbacks lemma:
+\textbf{Functor.} Define $F : \mathbf{C} \to \mathbf{Par}(\mathbf{C})$
+by $F(A) = A$ on objects and, for $f : A \to B$, $F(f) = (f, A)$: the partial
+map defined on all of $A$, with domain $1_A : A \rightarrowtail A$.
 \begin{itemize}
-  \item pasting the top-left square with the one to its right shows that
-    $W$ is the pullback of $U_h$ along $|g| v = |g \circ f|$, i.e.\ the domain
-    of $h \circ (g \circ f)$;
-  \item pasting it with the one below shows that $W$ is the pullback of
-    $T \rightarrowtail U_g \rightarrowtail B$ along $|f|$, i.e.\ the domain of
-    $(h \circ g) \circ f$.
+  \item \textbf{Identities:} $F(1_A) = (1_A, A)$ is the identity of
+    $\mathbf{Par}(\mathbf{C})$.
+  \item \textbf{Composition:} let $f : A \to B$ and $g : B \to C$. To compute
+    $F(g) \circ F(f)$, pull back the domain $1_B$ of $F(g)$ along the map $f$
+    of $F(f)$. The top-left square below is a pullback: if $z_1 : Z \to A$
+    and $z_2 : Z \to B$ satisfy $f z_1 = z_2$, then $u := z_1$ is the unique
+    arrow with $1_A u = z_1$ and $f u = z_2$. So $V = A$ with legs $1_A$ and
+    $f$:
+    \[
+    \begin{tikzcd}
+      A \ar[r, "f"] \ar[d, "1_A"'] & B \ar[r, "g"] \ar[d, "1_B"] & C \\
+      A \ar[r, "f"'] \ar[d, "1_A"'] & B & \\
+      A & &
+    \end{tikzcd}
+    \]
+    Going right twice gives the map $g f$, going down twice gives the domain
+    $1_A 1_A = 1_A$. So
+    \[
+      F(g) \circ F(f) = (g, B) \circ (f, A) = (g f, A) = F(g \circ f).
+    \]
 \end{itemize}
-Both composites are $W \to V \to U_f \rightarrowtail A$ with
-$W \to T \to U_h \to D$, so they are equal.
-
-\medskip
-\noindent\textbf{Functor.} Define $\mathbf{C} \to \mathbf{Par}(\mathbf{C})$ by
-$A \mapsto A$ and $f \mapsto (f, A)$ (domain $1_A : A \rightarrowtail A$).
-Identities go to identities. For $f : A \to B$, $g : B \to C$, pulling back
-$1_B$ along $f$ gives $A$ with legs $1_A$ and $f$, so
-$(g, B) \circ (f, A) = (g f, A)$. \hfill$\square$
+\hfill$\square$
 
 \section{Exercise 4}
 
