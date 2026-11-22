@@ -103,11 +103,12 @@
       \end{block}
 
       \begin{itemize}
-        \item $m \subseteq m'$ iff $m = m' f$ for some $f$.
+        \item $m \subseteq m'$ iff $m = m' f$ for some $f$
+          (a~preorder).
         \item<2-> $m \equiv m'$ iff $m \subseteq m'$ and $m' \subseteq m$
           (then $f$ is an iso).
-        \item<2-> $\Sub(X)$: subobjects of $X$, with $\equiv$ ones
-          counted as one. A poset; in \Sets: $\Sub(X) \cong P(X)$.
+        \item<2-> $\Sub(X)$: equivalence classes of monos into $X$.
+          A poset; in \Sets: $\Sub(X) \cong P(X)$.
       \end{itemize}
     \end{column}
     \begin{column}{0.4\textwidth}
@@ -125,8 +126,8 @@
       \visible<2->{
       \begin{exampleblock}{Example}
         \small\textbf{Seats} $\{a, b, c, d\}$: $1 \mapsto a, 2 \mapsto b$
-        and $x \mapsto b, y \mapsto a$: $\subseteq$ both ways, one subobject
-        $\{a, b\}$.
+        and $x \mapsto b, y \mapsto a$: $\subseteq$ both ways, but different
+        monos (different domains). One subobject $\{a, b\}$.
       \end{exampleblock}}
     \end{column}
   \end{columns}
@@ -225,14 +226,12 @@ WHERE  e.City = d.City
         \item $\cg{g}$ is mono: pullback is inverse image $\cf{f}^{-1}(V)$.
 
           \[
-            \begin{tikzcd}[sep=small]
-              f^{-1}(V) \ar[r] \ar[d, >->] & V \ar[d, >->] \\
-              A \ar[r] & C
+            \begin{tikzcd}[sep=normal]
+              f^{-1}(V) \ar[r, "f'"] \ar[d, >->, "f^{-1}(m)"'] & V \ar[d, >->, "m"] \\
+              A \ar[r, "f"'] & C
             \end{tikzcd}
           \]
       \end{itemize}
-
-      \medskip
 
       Pullback of a mono is a mono, so
       \[
@@ -385,29 +384,29 @@ WHERE  e.City = d.City
 
 \end{frame}
 
-\begin{frame}
-\frametitle{Preservation of limits}
-
-  \begin{itemize}
-    \item A functor $F: \C \to \mathbf{E}$ \textbf{preserves} limits if
-      limit cones go to limit cones: $F(\lim_j D_j) \cong \lim_j F D_j$.
-    \item \textbf{Prop.\ 5.25:} $\Hom(C, -): \C \to \Sets$, $X \mapsto$
-      arrows $C \to X$, preserves all limits.
-  \end{itemize}
-
-  \begin{block}{Why: an arrow into a limit is the same as a cone}
-    \[
-      \Hom(C, \lim_j D_j) \;\underset{\text{UMP}}{\cong}\; \Cone(C, D)
-      \;\underset{\text{compatible families}}{\cong}\; \lim_j \Hom(C, D_j)
-    \]
-  \end{block}
-
-  \begin{exampleblock}{Example}
-    $\Hom(C, A \times B) \cong \Hom(C, A) \times \Hom(C, B)$:
-    an arrow into a product is a pair of arrows.
-  \end{exampleblock}
-
-\end{frame}
+%% \begin{frame}
+%% \frametitle{Preservation of limits}
+%% 
+%%   \begin{itemize}
+%%     \item A functor $F: \C \to \mathbf{E}$ \textbf{preserves} limits if
+%%       limit cones go to limit cones: $F(\lim_j D_j) \cong \lim_j F D_j$.
+%%     \item \textbf{Prop.\ 5.25:} $\Hom(C, -): \C \to \Sets$, $X \mapsto$
+%%       arrows $C \to X$, preserves all limits.
+%%   \end{itemize}
+%% 
+%%   \begin{block}{Why: an arrow into a limit is the same as a cone}
+%%     \[
+%%       \Hom(C, \lim_j D_j) \;\underset{\text{UMP}}{\cong}\; \Cone(C, D)
+%%       \;\underset{\text{compatible families}}{\cong}\; \lim_j \Hom(C, D_j)
+%%     \]
+%%   \end{block}
+%% 
+%%   \begin{exampleblock}{Example}
+%%     $\Hom(C, A \times B) \cong \Hom(C, A) \times \Hom(C, B)$:
+%%     an arrow into a product is a pair of arrows.
+%%   \end{exampleblock}
+%% 
+%% \end{frame}
 
 \subsection{Colimits}
 
@@ -712,7 +711,7 @@ data Either a b
   \vspace{0.3cm}
   \begin{itemize}
     \item<3-> \textbf{Arrows as Constructors:} The functions \texttt{Left} and \texttt{Right} are the injection arrows. They wrap a specific type into the broader union.
-    \item<4-> \textbf{Universal Property as Pattern Matching:} When you write a \texttt{match} or \texttt{switch} statement, you are actively satisfying the colimit's universal property.
+    \item<4-> \textbf{Universal Property as Pattern Matching:} When you write a \texttt{match} statement, you are actively satisfying the colimit's universal property.
     \item<5-> \textbf{Compiler-Enforced Totality:} The math demands a path for every case. The compiler enforces this by throwing an error if you forget to handle a variant.
   \end{itemize}
 \end{frame}
