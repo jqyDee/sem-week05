@@ -1,0 +1,227 @@
+\providecommand{\Sub}{\operatorname{Sub}}
+\providecommand{\Hom}{\operatorname{Hom}}
+\providecommand{\colim}{\operatorname*{colim}}
+\providecommand{\mono}{\rightarrowtail}
+
+\section{Theory Overview: Limits and Colimits}
+\label{sec:theory}
+
+\emph{This section was prepared by Matti Fischbach.}
+
+So far we have met several constructions defined by a universal mapping
+property (UMP): terminal objects, products, equalizers, and their duals. Each
+was introduced on its own, yet their definitions and proofs look very much
+alike. Chapter~5 of Awodey~\cite{Awodey10} explains why: all of them are
+instances of a single notion, the \emph{limit} of a diagram, and their duals
+are all \emph{colimits}. The chapter gets there in three steps. It first
+introduces two tools, \emph{subobjects} and \emph{pullbacks}, then develops
+the general theory of diagrams, cones and limits, and finally dualizes to
+colimits. We follow the same order. As a running example we use a small
+company database, in the spirit of Section~\ref{sec:discussion}: a set $A$ of
+employees, a set $B$ of departments and a set $C$ of cities, with functions
+$f: A \to C$ and $g: B \to C$ giving the city of each.
+
+\subsection{Subobjects}
+\label{sec:subobjects}
+
+In a general category we cannot speak of subsets, as objects do not have to
+have elements. Since every subset $U \subseteq X$ arises as an equalizer, and
+every equalizer is monic, Awodey uses monomorphisms instead.
+
+\begin{definition}[Subobject]
+  A \emph{subobject} of an object $X$ is a mono $m: M \mono X$. For subobjects
+  $m, m'$ of $X$ we write $m \subseteq m'$ if $m$ factors through $m'$, i.e.\
+  $m = m' f$ for some (necessarily unique) $f: M \to M'$.
+\end{definition}
+
+The object $M$ alone does not say which part of $X$ is meant. This
+information lies in the arrow $m$. The relation $\subseteq$ is reflexive and
+transitive, so the subobjects of $X$ form a preorder. It is not antisymmetric,
+e.g. for $X = \{a, b, c, d\}$, the monos $\{1, 2\} \to X$ with $1 \mapsto a$,
+$2 \mapsto b$ and $\{x, y\} \to X$ with $x \mapsto b$, $y \mapsto a$ are
+included in each other, but they are different arrows with different domains.
+They pick out the same part $\{a, b\}$ of $X$, so we identify them: we say $m
+\equiv m'$ if $m \subseteq m'$ and $m' \subseteq m$, in which case the
+factoring arrow is an isomorphism. The equivalence classes form a poset
+$\Sub(X)$. Membership is expressed by arrows as well: a generalized element
+$z\colon Z \to X$ lies in $M$ if it factors through $m$.
+
+\subsection{Pullbacks}
+\label{sec:pullbacks}
+
+\begin{definition}[Pullback]
+  Given a \emph{corner} $f\colon A \to C$, $g\colon B \to C$, a
+  \emph{pullback} of $f$ and $g$ is an object $P$ with arrows $p_1\colon P
+  \to A$, $p_2\colon P \to B$ such that $f p_1 = g p_2$, and such that for
+  every $z_1\colon Z \to A$, $z_2\colon Z \to B$ with $f z_1 = g z_2$ there
+  is a unique $u\colon Z \to P$ with $p_1 u = z_1$ and $p_2 u = z_2$.
+\end{definition}
+
+\begin{center}
+\begin{tikzcd}[sep=normal]
+  Z \ar[drr, bend left=20, "z_2"] \ar[ddr, bend right=20, "z_1"']
+    \ar[dr, dashed, "u"] & & \\
+  & P \ar[r, "p_2"] \ar[d, "p_1"'] \ar[dr, phantom, "\lrcorner", very near start]
+    & B \ar[d, "g"] \\
+  & A \ar[r, "f"'] & C
+\end{tikzcd}
+\end{center}
+
+As with every UMP, the pullback is unique up to isomorphism, and we write $P =
+A \times_C B$. In our example $P$ is the set of all (employee, department)
+pairs located in the same city, i.e.\ an inner join on the city. Commutativity
+alone does not fix $P$ (the empty set also commutes), but the UMP does:
+existence of $u$ means that $P$ contains \emph{all} matching pairs, and
+uniqueness means that it contains no duplicates. A pullback of $f$ and $g$ is
+exactly a product of $f$ and $g$ as objects of the slice category
+$\mathbf{C}/C$ (\exref{1}).
+
+\paragraph{Construction.} By Proposition~5.5 of~\cite{Awodey10}, a category
+with binary products and equalizers has all pullbacks: take the product $A
+\times B$ and then the equalizer $E \mono A \times B$ of $f \pi_1$ and $g
+\pi_2$, with $p_i = \pi_i e$. In $\mathbf{Sets}$ this is $A \times_C B =
+\{(a, b) \in A \times B \mid f a = g b\}$, or in SQL, \texttt{FROM} is the
+product and \texttt{WHERE} is the equalizer.
+
+\paragraph{Special cases.} If $C = 1$ is terminal, the condition $f z_1 = g
+z_2$ always holds and the pullback is the product $A \times B$. If $g$ is the
+inclusion of a subset $V \subseteq C$, the pullback is the inverse image
+$f^{-1}(V) = \{a \in A \mid f a \in V\}$, and if both arrows are inclusions $U,
+V \subseteq X$ it is the intersection $U \cap V$. Since these descriptions only
+use arrows, they make sense in every category. The pullback of a mono is again
+a mono (\exref{2}), so pulling back along $f$ yields a monotone map
+$f^{-1}: \Sub(C) \to \Sub(A)$.
+
+\paragraph{The two-pullbacks lemma.} The main tool for reasoning with
+pullbacks (Lemma~5.8 of~\cite{Awodey10}) concerns two adjacent commutative
+squares:
+\[
+\begin{tikzcd}[sep=normal]
+  F \ar[r] \ar[d] & E \ar[r] \ar[d] & D \ar[d] \\
+  A \ar[r] & B \ar[r] & C
+\end{tikzcd}
+\]
+If the right square is a pullback, then the left square is a pullback if and
+only if the outer rectangle is one. In terms of joins: joining in two steps is
+the same as joining in one. The lemma is not symmetric: if the left square and
+the rectangle are pullbacks, the right square does not have to be a pullback.
+As a consequence, pulling back along $h: C' \to C$ is a functor $h^*\colon
+\mathbf{C}/C \to \mathbf{C}/C'$ (Proposition~5.10), which in logic models
+substitution.
+
+\subsection{Limits}
+\label{sec:limits}
+
+Terminal objects, products, equalizers and pullbacks all follow the same
+pattern: we start with some objects and arrows, look at all objects with
+compatible arrows into them, and pick the ``best'' one. To make this precise,
+we need diagrams and cones.
+
+\begin{definition}[Diagram, cone, limit]
+  A \emph{diagram} of shape $\mathbf{J}$ in $\mathbf{C}$ is a functor
+  $D\colon \mathbf{J} \to \mathbf{C}$, written $D_j$ on objects. A
+  \emph{cone} to $D$ is an object $C$ with arrows $c_j\colon C \to D_j$, one
+  for each $j \in \mathbf{J}$, such that $D_\alpha c_i = c_j$ for every
+  $\alpha\colon i \to j$ in $\mathbf{J}$. A \emph{limit} of $D$ is a
+  terminal cone $(\lim_j D_j, p_j)$: for every cone $(C, c_j)$ there is a
+  unique $u\colon C \to \lim_j D_j$ with $p_j u = c_j$ for all $j$.
+\end{definition}
+
+\begin{center}
+\begin{tikzcd}[sep=normal]
+  & C \ar[d, dashed, "u"] \ar[ddl, bend right=20, "c_i"']
+    \ar[ddr, bend left=20, "c_j"] & \\
+  & \lim_j D_j \ar[dl, "p_i"'] \ar[dr, "p_j"] & \\
+  D_i \ar[rr, "D_\alpha"'] & & D_j
+\end{tikzcd}
+\end{center}
+
+Equivalently, arrows $C \to \lim_j D_j$ correspond one-to-one to cones with
+vertex $C$. Being terminal in the category of cones, a limit is unique up to
+isomorphism. Choosing the shape $\mathbf{J}$ recovers the constructions we
+know (Table~\ref{tab:limits}). For the corner $\bullet \to \bullet \leftarrow
+\bullet$, for example, a cone has three legs, but the leg into $C$ is forced to
+be $f z_1 = g z_2$, so a cone is just a commuting square, and the limit is the
+pullback.
+
+\paragraph{All limits from products and equalizers.} The pullback
+construction generalizes to all shapes. By Proposition~5.21
+of~\cite{Awodey10}, a category has all finite limits if and only if it has
+finite products and equalizers. Given $D\colon \mathbf{J} \to \mathbf{C}$,
+take the product $P = \prod_i D_i$ of all objects, which in $\mathbf{Sets}$
+contains all tuples $(x_i)_i$. A cone condition has to be checked for each
+arrow of $\mathbf{J}$, so take a second product $Q = \prod_{\alpha\colon i \to
+j} D_j$ with one factor per arrow. Two arrows $\varphi, \psi\colon P \to Q$
+are defined componentwise: in the factor of $\alpha\colon i \to j$, $\varphi$
+reads off $x_j$, while $\psi$ computes $D_\alpha(x_i)$. Their equalizer $E
+\mono P$ keeps exactly the tuples with $D_\alpha(x_i) = x_j$ for all $\alpha$,
+which is the cone condition, and $E$ is the limit of $D$. Again,
+\texttt{FROM} is the product and \texttt{WHERE} is the equalizer.
+
+\paragraph{Preservation of limits.} A functor $F$ \emph{preserves} limits if
+$F(\lim_j D_j) \cong \lim_j F D_j$ via the image of the limit cone. By
+Proposition~5.25, $\Hom(C, -)$ preserves all limits, since an arrow $C \to
+\lim_j D_j$ is the same as a cone, i.e.\ a compatible family in $\lim_j
+\Hom(C, D_j)$; for products, $\Hom(C, A \times B) \cong \Hom(C, A) \times
+\Hom(C, B)$.
+
+\subsection{Colimits}
+\label{sec:colimits}
+
+Dualizing, a \emph{cocone} from $D$ is an object $C$ with arrows $c_j\colon
+D_j \to C$ \emph{out of} the diagram satisfying $c_j D_\alpha = c_i$, and a
+\emph{colimit} $\colim_j D_j$ is an \emph{initial} cocone: it has a unique
+arrow $u$ into every other cocone. Dually to Proposition~5.21, colimits are
+built from coproducts and coequalizers. In $\mathbf{Sets}$ this reads
+\[
+  \colim_j D_j \;=\; \textstyle\coprod_j D_j \,/\, {\sim}
+  \qquad\text{where } x \sim D_\alpha(x),
+\]
+i.e.\ we put all sets side by side and then glue every element to its images.
+The dual of the pullback is the \emph{pushout} $B +_A C$ of a span $B
+\xleftarrow{f} A \xrightarrow{g} C$, given in $\mathbf{Sets}$ by $(B + C) /
+(f a \sim g a)$. If, for example, $A = B \cap C$ with the inclusions, the
+pushout glues exactly the common elements and yields $B \cup C$. In short,
+limits are \emph{subobjects of products}, and colimits are \emph{quotients of
+coproducts}.
+
+\paragraph{$\omega$CPOs and least fixed points.} An important class of
+colimits is that of sequences $D_0 \to D_1 \to D_2 \to \cdots$, i.e.\ diagrams
+of shape $\omega$. In a poset, where there is at most one arrow between two
+elements, a cocone is an upper bound and a colimit is a \emph{least} upper
+bound. An \emph{$\omega$CPO} is a poset in which every chain $d_0 \le d_1 \le
+\cdots$ has a supremum $\sup_n d_n$, and a monotone map $h$ is
+\emph{continuous} if it preserves these colimits, $h(\sup_n d_n) = \sup_n
+h(d_n)$. By Proposition~5.34 of~\cite{Awodey10}, if such a poset has a least
+element $0$ and $h$ is continuous, then
+\[
+  0 \le h(0) \le h^2(0) \le \cdots, \qquad d_\omega = \sup_n h^n(0)
+\]
+is the least fixed point of $h$, since $h(d_\omega) = \sup_n h^{n+1}(0) =
+d_\omega$. This is the meaning of recursion: the factorial is the least fixed
+point of $h(p)(0) = 1$, $h(p)(n) = n \cdot p(n-1)$ on partial functions
+$\mathbb{N} \rightharpoonup \mathbb{N}$, where $h^n(0)$ is defined on $0,
+\dots, n-1$ and only the colimit $d_\omega$ is the whole factorial.
+How a colimit looks also depends on the category in which it is computed, as
+Exercise~4 in Appendix~\ref{app:exercises} illustrates.
+
+\begin{table}[tb]
+  \centering
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Shape of $\mathbf{J}$} & \textbf{Limit} & \textbf{Colimit} \\
+    \midrule
+    empty & terminal object $1$ & initial object $0$ \\
+    discrete $\bullet \;\; \bullet$ & product $A \times B$ & coproduct $A + B$ \\
+    parallel pair $\bullet \rightrightarrows \bullet$ & equalizer & coequalizer \\
+    corner $\bullet \to \bullet \leftarrow \bullet$ & pullback $A \times_C B$ & --- \\
+    span $\bullet \leftarrow \bullet \to \bullet$ & --- & pushout $B +_A C$ \\
+    sequence $\bullet \to \bullet \to \cdots$ & first object $D_0$ & $\sup$ in a poset ($\omega$CPO) \\
+    \midrule
+    built from & products and equalizers & coproducts and coequalizers \\
+    \bottomrule
+  \end{tabular}
+  \caption{Universal constructions as limits and colimits of diagrams of
+    different shapes~\cite{Awodey10}.}
+  \label{tab:limits}
+\end{table}

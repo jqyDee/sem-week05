@@ -1,5 +1,5 @@
 # no build dir
-/build
+**/build
 
 # no auxilary files
 *.aux
