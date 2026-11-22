@@ -1,0 +1,254 @@
+\section{Discussion: Applications of Limits and Colimits}
+\label{sec:discussion}
+
+\emph{This section was prepared by Dominic Santeler.}
+
+While Chapter 5 of Awodey~\cite{Awodey10} mainly develops limits and colimits in a mathematical setting, these universal constructions appear directly across computer
+science. In this section, we examine four applications: relational databases~\cite{FongSpivak19}, algebraic data types in programming languages~\cite{Milewski18}, propositional logic (propositions as types)~\cite{Awodey10,Milewski18}, and computational category theory~\cite{RydeheardBurstall88}.
+
+\subsection{Relational Databases as Categories and Functors}
+\label{sec:db-schemas}
+
+One of the most straightforward real-world models of limits and colimits appears in relational databases~\cite[Ch.~3]{FongSpivak19}. A relational database consists of interlocking tables linked via primary keys (ID columns) and foreign keys. Translating this structure into category theory yields a direct correspondence:
+\begin{itemize}
+  \item \textbf{Objects as tables and types:} Each table is represented by an object corresponding to its ID column, alongside objects for primitive datatypes (such as \texttt{String}).
+  \item \textbf{Morphisms as columns:} A non-ID column is a morphism $f \colon A \to B$, representing either an internal foreign-key reference between tables or an external attribute mapping into a primitive type.
+  \item \textbf{Identities and composition:} The identity arrow $1_A$ maps each row to itself, while composition $g \circ f$ models a path query following foreign keys across multiple tables.
+  \item \textbf{Path equations as business rules:} Integrity constraints are encoded as commuting diagrams (path equations) in the category.
+\end{itemize}
+Together, a directed graph of tables and columns equipped with path equations forms a \emph{finitely presented category} $\mathcal{C}$, called the \emph{database schema}~\cite[Sec.~3.1--3.2]{FongSpivak19}.
+
+\begin{example}
+\label{ex:db-schema}
+Consider a small company database with two interlocking tables, \texttt{Employee} and \texttt{Department}, adapted from~\cite[Sec.~3.1]{FongSpivak19}. Figure~\ref{fig:db-schema} depicts the corresponding schema category $\mathcal{C}$. To enforce the business rules that every employee's manager works in the same department as the employee, and that every department's secretary works in that department, we impose the path equations:
+\[
+  \mathrm{WorksIn} \circ \mathrm{Mngr} = \mathrm{WorksIn}
+  \qquad\text{and}\qquad
+  \mathrm{WorksIn} \circ \mathrm{Secr} = 1_{\mathrm{Department}}.
+\]
+\end{example}
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzcd}[row sep=1.3cm, column sep=2.4cm]
+    \mathrm{Employee}
+      \arrow[loop left, "\mathrm{Mngr}"]
+      \arrow[r, bend left=18, "\mathrm{WorksIn}"]
+      \arrow[d, swap, "\mathrm{FName}"]
+    & \mathrm{Department}
+      \arrow[l, bend left=18, "\mathrm{Secr}"]
+      \arrow[dl, "\mathrm{DName}"] \\
+    \mathrm{String} &
+  \end{tikzcd}
+  \caption{The database schema $\mathcal{C}$ for the \texttt{Employee} and \texttt{Department} tables represented as a finitely presented category.}
+  \label{fig:db-schema}
+\end{figure}
+
+While the schema $\mathcal{C}$ defines only the abstract blueprint, the actual data stored in the database at a given point in time is called a \emph{$\mathcal{C}$-instance} and is formalized as a set-valued functor $I \colon \mathcal{C} \to \mathbf{Set}$~\cite[Def.~3.37]{FongSpivak19}. Table~\ref{tab:db-instance} shows a concrete instance for Example~\ref{ex:db-schema}.
+
+Here, the functor assigns to each table object its set of row IDs---for example, $I(\mathrm{Employee}) = \{1, 2, 3\}$ and $I(\mathrm{Department}) = \{101, 102\}$---and to each column arrow a total function between sets, such as $I(\mathrm{WorksIn})(1) = 101$. Note that, unlike in object-oriented programming where an ``instance'' refers to a single object, a database instance $I$ captures the entire populated state of all tables simultaneously~\cite[Sec.~3.3.3]{FongSpivak19}. Crucially, because any functor must preserve composition and identities, valid data is automatically guaranteed to satisfy all path-equation constraints defined in the schema.
+
+\begin{table}[tb]
+  \centering
+  \begin{minipage}[t]{0.52\textwidth}
+    \centering
+    \begin{tabular}{@{}llll@{}}
+      \toprule
+      \textbf{ID} & \textbf{FName} & \textbf{WorksIn} & \textbf{Mngr} \\
+      \midrule
+      1 & Alan & 101 & 2 \\
+      2 & Ruth & 101 & 2 \\
+      3 & Kris & 102 & 3 \\
+      \bottomrule
+    \end{tabular}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.42\textwidth}
+    \centering
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      \textbf{ID} & \textbf{DName} & \textbf{Secr} \\
+      \midrule
+      101 & Sales & 1 \\
+      102 & IT & 3 \\
+      \bottomrule
+    \end{tabular}
+  \end{minipage}
+  \caption{A concrete database instance $I \colon \mathcal{C} \to \mathbf{Set}$ populating the \texttt{Employee} (left) and \texttt{Department} (right) tables.}
+  \label{tab:db-instance}
+\end{table}
+
+\subsection{Limits as Database Queries}
+\label{sec:db-queries}
+
+Viewing a database instance as a diagram $I \colon \mathcal{C} \to \mathbf{Set}$ reveals that finite limits in $\mathbf{Set}$ directly model relational database queries~\cite[Sec.~3.5.3]{FongSpivak19}. By the explicit construction of finite limits in $\mathbf{Set}$~\cite[Thm.~3.80]{FongSpivak19}, the limit of a diagram selects all tuples $(d_1, \dots, d_n)$ across the participating tables that satisfy every morphism equation in the diagram.
+
+In particular, a \emph{pullback} over a cospan models an SQL \texttt{INNER JOIN}~\cite[Ex.~3.84]{FongSpivak19}. For our running example, joining every employee with their corresponding department record corresponds to taking the pullback of the foreign-key function $I(\mathrm{WorksIn}) \colon I(\mathrm{Employee}) \to I(\mathrm{Department})$ against the identity $1_{I(\mathrm{Department})}$, as shown in Figure~\ref{fig:db-pullback}. The pullback object $P$ is the result set
+\[
+  P = \{(e, d) \in I(\mathrm{Employee}) \times I(\mathrm{Department})
+        \mid I(\mathrm{WorksIn})(e) = d\},
+\]
+which matches the SQL query in Listing~\ref{lst:sql-join}.
+
+The universal mapping property guarantees that any candidate set $Z$ equipped with projections $z_1, z_2$ satisfying the join condition factors through $P$ via a unique mediating map $u \colon Z \to P$. Conceptually, this means the pullback captures all matching pairs without omission or redundancy.
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzcd}[row sep=1.2cm, column sep=2.2cm]
+    Z \arrow[ddr, bend right=20, swap, "z_1"]
+      \arrow[drr, bend left=20, "z_2"]
+      \arrow[dr, dashed, "u"] & & \\
+    & P \arrow[r, "p_2"] \arrow[d, swap, "p_1"]
+      \arrow[dr, phantom, "\lrcorner", very near start]
+    & I(\mathrm{Department}) \arrow[d, "1_{I(\mathrm{Department})}"] \\
+    & I(\mathrm{Employee}) \arrow[r, swap, "I(\mathrm{WorksIn})"]
+    & I(\mathrm{Department})
+  \end{tikzcd}
+  \caption{The pullback diagram in $\mathbf{Set}$ modeling an SQL inner join between \texttt{Employee} and \texttt{Department}, including a competing cone $Z$ and its unique mediating arrow $u$.}
+  \label{fig:db-pullback}
+\end{figure}
+
+\lstset{language=SQL, captionpos=b, basicstyle=\ttfamily\small, keywordstyle=\bfseries}
+\begin{lstlisting}[caption={SQL inner join corresponding to the pullback in Figure~\ref{fig:db-pullback}.}, label=lst:sql-join, float=tb]
+SELECT *
+FROM   Employee e, Department d
+WHERE  e.WorksIn = d.ID;
+\end{lstlisting}
+
+\subsection{Algebraic Data Types in Programming Languages}
+\label{sec:prog-lang}
+
+Moving from databases to programming, category theory serves as a meta-language for reasoning about programs at a purely declarativ elevel~\cite[Ch.~11]{Milewski18}. In the category of types and pure functions (often modeled as $\mathbf{Set}$ when disregarding non-termination~\cite[Sec.~2.3]{Milewski18}), objects represent data types and morphisms represent pure functions between them.
+
+\paragraph{Declarative versus Imperative Definitions.}
+In imperative programming, composite data types are typically described as construction recipes: to form a Cartesian product, one allocates memory, picks one element from type $A$ and one from type $B$, and stores them together. Category theory flips this perspective by defining types \emph{declaratively} through universal mapping properties~\cite[Ch.~11]{Milewski18}. Rather than specifying an internal memory layout, a type is characterized entirely by its external interface, the morphisms entering and leaving it. As long as this interface satisfies the universal property, the underlying representation (e.g., a C \texttt{struct}, a database row, or a JSON object) does not matter to the rest of the program.
+
+\paragraph{Limits as Record Types (Products).}
+The canonical realization of a categorical product (a limit over a discrete two-object diagram) is a pair, a C \texttt{struct}, or a Haskell record~\cite[Sec.~6.1--6.2]{Milewski18}. Consider a \texttt{Person} record storing a \texttt{String} name and an \texttt{Int} age (Listing~\ref{lst:haskell-adt}). As illustrated on the left of Figure~\ref{fig:prog-duality}, \texttt{Person} forms the apex of a limiting cone whose projection arrows are literally the field-selector functions \texttt{name} and \texttt{age}. For any other type $X$ equipped with functions $f \colon X \to \texttt{String}$ and $g \colon X \to \texttt{Int}$, the universal property guarantees a unique function $\langle f, g \rangle \colon X \to \texttt{Person}$ that factorizes both projections~\cite[Sec.~5.5]{Milewski18}.
+
+\begin{figure}[tb]
+  \centering
+  \begin{minipage}[t]{0.47\textwidth}
+    \centering
+    \begin{tikzcd}[row sep=1.1cm, column sep=0.8cm]
+      & X \arrow[d, dashed, "{\langle f, g \rangle}"]
+          \arrow[ddl, bend right=20, swap, "f"]
+          \arrow[ddr, bend left=20, "g"] & \\
+      & \texttt{Person} \arrow[dl, swap, "\texttt{name}"]
+                        \arrow[dr, "\texttt{age}"] & \\
+      \texttt{String} & & \texttt{Int}
+    \end{tikzcd}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.47\textwidth}
+    \centering
+    \begin{tikzcd}[row sep=1.1cm, column sep=0.8cm]
+      \texttt{String} \arrow[dr, "\texttt{Left}"]
+                      \arrow[ddr, bend right=20, swap, "f"]
+      & & \texttt{Int} \arrow[dl, swap, "\texttt{Right}"]
+                       \arrow[ddl, bend left=20, "g"] \\
+      & \texttt{Either String Int} \arrow[d, dashed, "{[f, g]}"] & \\
+      & C &
+    \end{tikzcd}
+  \end{minipage}
+  \caption{Duality of algebraic data types in Haskell: a record type as a product limit cone (left) and a variant type as a coproduct colimit cocone (right).}
+  \label{fig:prog-duality}
+\end{figure}
+
+\paragraph{Colimits as Variant Types (Sums).}
+Dually, coproducts (colimits over a discrete two-object diagram) model sum types or variants, such as Haskell's \texttt{Either} or C++'s \texttt{std::variant}~\cite[Sec.~5.6, 6.3]{Milewski18}, where the constructors \texttt{Left} and \texttt{Right} act as the injection arrows (Figure~\ref{fig:prog-duality}, right). To define a function from \texttt{Either a b} to a target type $C$, we must supply two functions $f \colon a \to C$ and $g \colon b \to C$, which uniquely determine the combined function $[f, g] \colon \texttt{Either a b} \to C$~\cite[Sec.~5.6]{Milewski18}.
+
+In Haskell, this is implemented by \texttt{either} (Listing~\ref{lst:haskell-adt}) and corresponds to pattern matching (or \texttt{match}/\texttt{switch} in other languages): if a case such as \texttt{Right} is omitted, the compiler catches the missing branch at compile time and prevents runtime errors.
+
+
+\lstset{language=Haskell, captionpos=b, basicstyle=\ttfamily\small, keywordstyle=\bfseries}
+\begin{lstlisting}[caption={Product (record) and coproduct (sum) types in Haskell, with \texttt{either} implementing the universal mediating arrow $\lbrack f, g\rbrack$.}, label=lst:haskell-adt, float=tb]
+data Person = Person { name :: String, age :: Int }
+
+data Either a b = Left a | Right b
+
+either :: (a -> c) -> (b -> c) -> Either a b -> c
+either f _ (Left x)  = f x
+either _ g (Right y) = g y
+
+describe :: Either String Int -> String
+describe = either (\s -> "Text: " ++ s) (\n -> "Number: " ++ show n)
+\end{lstlisting}
+
+\subsection{Logic: Propositions as Types}
+\label{sec:logic}
+
+The ideas from algebraic data types also carry over directly to logic. We can view a deductive system as a category where logical propositions are objects (or data types) and proofs of an entailment $A \vdash B$ are morphisms $f \colon A \to B$ (or functions of type $A \to B$)~\cite[Sec.~1.4, Ex.~10]{Awodey10}, \cite[Sec.~3.2.6]{RydeheardBurstall88}. From this perspective, a proposition is true if its corresponding type has at least one value~\cite[Sec.~9.6]{Milewski18}, and limits and colimits correspond directly to logical connectives in natural deduction (Table~\ref{tab:curry-howard}).
+
+\paragraph{Limits as Conjunction and Truth.}
+In a category of proofs, finite limits correspond to logical conjunction and truth~\cite[Sec.~3.2.6]{RydeheardBurstall88}. The binary product $A \times B$ represents the conjunction $A \land B$: proving $A \land B$ from an assumption $C$ requires supplying both a proof $f \colon C \to A$ and a proof $g \colon C \to B$, which yields the unique mediating arrow $\langle f, g \rangle \colon C \to A \times B$ corresponding to the conjunction-introduction rule:
+\[
+  \frac{f \colon C \to A \qquad g \colon C \to B}
+       {\langle f, g \rangle \colon C \to A \land B}
+  \quad (\land\text{-I})
+  \qquad\text{and}\qquad
+  \frac{A \land B}{A} \; (\pi_1)
+  \qquad
+  \frac{A \land B}{B} \; (\pi_2).
+\]
+The product projections $\pi_1 \colon A \times B \to A$ and $\pi_2 \colon A \times B \to B$ (implemented in Haskell as \texttt{fst} and \texttt{snd}) are precisely the conjunction-elimination rules: from a proof of $A \land B$, one can extract a proof of $A$ or a proof of $B$. The empty limit, the terminal object $1$, corresponds to the proposition $\top$ (\emph{True}) and the unit type \texttt{()}; the unique morphism $!_A \colon A \to 1$ witnesses that every proposition trivially entails $\top$~\cite[Sec.~6.4, 9.6]{Milewski18}.
+
+\paragraph{Colimits as Disjunction and Falsity.}
+Dually, finite colimits correspond to logical disjunction and falsity~\cite[Sec.~3.2, Ex.~3.8]{Awodey10}, \cite[Sec.~9.6]{Milewski18}. The binary coproduct $A + B$ represents the disjunction $A \lor B$. The coproduct injections $\iota_1 \colon A \to A + B$ and $\iota_2 \colon B \to A + B$ (Haskell's \texttt{Left} and \texttt{Right}) realize the disjunction-introduction rules:
+\[
+  \frac{A}{A \lor B} \; (\iota_1)
+  \qquad
+  \frac{B}{A \lor B} \; (\iota_2)
+  \qquad\text{and}\qquad
+  \frac{f \colon A \to C \qquad g \colon B \to C}
+       {[f, g] \colon A \lor B \to C}
+  \quad (\lor\text{-E}).
+\]
+The universal mediating arrow $[f, g]$ corresponds directly to disjunction elimination (proof by cases): to derive $C$ from $A \lor B$, one must provide a derivation of $C$ from $A$ and a derivation of $C$ from $B$. As Awodey notes, making $A \lor B$ a true categorical coproduct requires passing to equivalence classes of proofs modulo detour-elimination equations so that $[f, g]$ is unique~\cite[Sec.~3.2, Ex.~3.8]{Awodey10}. Finally, the empty colimit, the initial object $0$, corresponds to $\bot$ (\emph{False}) and the uninhabited type \texttt{Void}. The unique morphism $0 \to A$ for every object $A$ simply reflects the logical rule that anything follows from a contradiction~\cite[Sec.~9.6]{Milewski18}.
+
+\begin{table}[tb]
+  \centering
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Logic} & \textbf{Category Theory} & \textbf{Programming (Haskell)} \\
+    \midrule
+    Proposition $A$ & Object $A$ & Type \texttt{a} \\
+    Proof of $A \vdash B$ & Morphism $A \to B$ & Function \texttt{a -> b} \\
+    $\top$ (True) & Terminal object $1$ (empty limit) & Unit type \texttt{()} \\
+    $\bot$ (False) & Initial object $0$ (empty colimit) & Empty type \texttt{Void} \\
+    $A \land B$ (Conjunction) & Product $A \times B$ (limit) & Pair / Record \texttt{(a, b)} \\
+    $A \lor B$ (Disjunction) & Coproduct $A + B$ (colimit) & Sum / Variant \texttt{Either a b} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Finite limits and colimits across logic, category theory, and functional programming.~\cite{Awodey10,Milewski18}.}
+  \label{tab:curry-howard}
+\end{table}
+
+\subsection{Computational Category Theory}
+\label{sec:comp-ct}
+
+While the preceding sections used category theory to analyze databases, programming languages, and logic, we can also invert this perspective and write programs that \emph{compute} categorical constructions. Because large parts of elementary category theory are constructive, proofs that establish the existence of objects can be translated directly into executable algorithms. In \emph{Computational Category Theory}, Rydeheard and Burstall realize this in Standard ML by representing categories as data types and constructive proofs as higher-order functions~\cite[Ch.~1, Sec.~3.3]{RydeheardBurstall88}.
+
+A good example is the construction of arbitrary finite colimits. By the completeness theorem~\cite[Thm.~5.23]{Awodey10} (restated constructively in~\cite[Sec.~4.5]{RydeheardBurstall88}), any category with an initial object, binary coproducts, and coequalizers has \emph{all} finite colimits. The inductive proof translates directly into the recursive algorithm in Listing~\ref{lst:finite-colimit}: it first combines the objects of a discrete diagram via binary coproducts starting from the initial object, and then incorporates each edge recursively using coequalizers.
+
+\lstset{language=Python, captionpos=b, basicstyle=\ttfamily\small, keywordstyle=\bfseries}
+\begin{lstlisting}[caption={Recursive computation of finite colimits, adapted from Rydeheard and Burstall~\cite{RydeheardBurstall88}.}, label=lst:finite-colimit, float=tb]
+def compute_finite_colimit(diagram, category):
+	# Base case: discrete diagram (no edges)
+    if diagram.edges.is_empty():
+        colimit = category.initial_object()
+        for obj in diagram.objects:
+            colimit = category.coproduct(colimit, obj)
+        return colimit
+    # Recursive case: account for edges via coequalizers
+    else:
+        edge = diagram.edges.pop()
+        partial = compute_finite_colimit(diagram, category)
+        return category.coequalizer(partial, edge)
+\end{lstlisting}
+
+Finally, duality yields a direct practical benefit: instead of writing a second algorithm for finite limits, we reverse all arrows in $\mathcal{C}$ and the diagram, run \texttt{compute\_finite\_colimit} in $\mathcal{C}^{\mathrm{op}}$, and reverse the resulting arrows~\cite[Sec.~3.6, 4.8]{RydeheardBurstall88}, effectively halving the required code.
+
+\subsection{Seminar Discussion: Limits in Analysis}
+At the end of the discussion part, a question arose regarding how categorical limits relate to limits in mathematical analysis. As clarified in the discussion, when a preorder such as $(\mathbb{R}, \le)$ is viewed as a category, infima correspond to limits and suprema of ascending chains correspond to colimits (matching the analytic limit of a bounded monotone sequence). Furthermore, this order-theoretic view connects directly to semantics of programming languages: in $\omega$-complete partial orders ($\omega\text{CPOs}$, cf.~\cite[Ex.~5.33]{Awodey10}), recursive programs are modeled mathematically as least fixed points obtained as the supremum (colimit) of an ascending sequence of approximations under a continuous function.
+
