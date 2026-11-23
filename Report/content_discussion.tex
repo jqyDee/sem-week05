@@ -118,7 +118,7 @@ WHERE  e.WorksIn = d.ID;
 \subsection{Algebraic Data Types in Programming Languages}
 \label{sec:prog-lang}
 
-Moving from databases to programming, category theory serves as a meta-language for reasoning about programs at a purely declarativ elevel~\cite[Ch.~11]{Milewski18}. In the category of types and pure functions (often modeled as $\mathbf{Set}$ when disregarding non-termination~\cite[Sec.~2.3]{Milewski18}), objects represent data types and morphisms represent pure functions between them.
+Moving from databases to programming, category theory serves as a meta-language for reasoning about programs at a purely declarative level~\cite[Ch.~11]{Milewski18}. In the category of types and pure functions (often modeled as $\mathbf{Set}$ when disregarding non-termination~\cite[Sec.~2.3]{Milewski18}), objects represent data types and morphisms represent pure functions between them.
 
 \paragraph{Declarative versus Imperative Definitions.}
 In imperative programming, composite data types are typically described as construction recipes: to form a Cartesian product, one allocates memory, picks one element from type $A$ and one from type $B$, and stores them together. Category theory flips this perspective by defining types \emph{declaratively} through universal mapping properties~\cite[Ch.~11]{Milewski18}. Rather than specifying an internal memory layout, a type is characterized entirely by its external interface, the morphisms entering and leaving it. As long as this interface satisfies the universal property, the underlying representation (e.g., a C \texttt{struct}, a database row, or a JSON object) does not matter to the rest of the program.
@@ -220,7 +220,7 @@ The universal mediating arrow $[f, g]$ corresponds directly to disjunction elimi
     $A \lor B$ (Disjunction) & Coproduct $A + B$ (colimit) & Sum / Variant \texttt{Either a b} \\
     \bottomrule
   \end{tabular}
-  \caption{Finite limits and colimits across logic, category theory, and functional programming.~\cite{Awodey10,Milewski18}.}
+  \caption{Finite limits and colimits across logic, category theory, and Haskell~\cite{Awodey10,Milewski18}.}
   \label{tab:curry-howard}
 \end{table}
 
@@ -232,19 +232,16 @@ While the preceding sections used category theory to analyze databases, programm
 A good example is the construction of arbitrary finite colimits. By the completeness theorem~\cite[Thm.~5.23]{Awodey10} (restated constructively in~\cite[Sec.~4.5]{RydeheardBurstall88}), any category with an initial object, binary coproducts, and coequalizers has \emph{all} finite colimits. The inductive proof translates directly into the recursive algorithm in Listing~\ref{lst:finite-colimit}: it first combines the objects of a discrete diagram via binary coproducts starting from the initial object, and then incorporates each edge recursively using coequalizers.
 
 \lstset{language=Python, captionpos=b, basicstyle=\ttfamily\small, keywordstyle=\bfseries}
-\begin{lstlisting}[caption={Recursive computation of finite colimits, adapted from Rydeheard and Burstall~\cite{RydeheardBurstall88}.}, label=lst:finite-colimit, float=tb]
+\begin{lstlisting}[caption={Recursive computation of finite colimits (adapted from~\cite{RydeheardBurstall88}).}, label=lst:finite-colimit, float=tb]
 def compute_finite_colimit(diagram, category):
-	# Base case: discrete diagram (no edges)
     if diagram.edges.is_empty():
         colimit = category.initial_object()
         for obj in diagram.objects:
             colimit = category.coproduct(colimit, obj)
         return colimit
-    # Recursive case: account for edges via coequalizers
-    else:
-        edge = diagram.edges.pop()
-        partial = compute_finite_colimit(diagram, category)
-        return category.coequalizer(partial, edge)
+    edge = diagram.edges.pop()
+    partial = compute_finite_colimit(diagram, category)
+    return category.coequalizer(partial, edge)
 \end{lstlisting}
 
 Finally, duality yields a direct practical benefit: instead of writing a second algorithm for finite limits, we reverse all arrows in $\mathcal{C}$ and the diagram, run \texttt{compute\_finite\_colimit} in $\mathcal{C}^{\mathrm{op}}$, and reverse the resulting arrows~\cite[Sec.~3.6, 4.8]{RydeheardBurstall88}, effectively halving the required code.
